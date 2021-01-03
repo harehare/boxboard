@@ -1,0 +1,16 @@
+.color-circle {
+    position: relative;
+    border-radius: 100%;
+    width: 24px;
+    height: 24px;
+    border-radius: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    margin: 8px;
+    background-color: transparent;
+    box-sizing: border-box;
+}
+
+.selected-circle {
+    border: 3px solid rgba(0, 0, 0, 0.1);
+}

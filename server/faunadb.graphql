@@ -1,0 +1,53 @@
+type Box {
+    boardID: ID!
+    userID: ID!
+    x: Int!
+    y: Int!
+    width: Int!
+    height: Int!
+    order: Int!
+    angle: Int!
+    color: String
+    boxType: String!
+    pinned: Boolean!
+    text: String
+    fontSize: Int
+    url: String
+    imageUrl: String
+    title: String
+    description: String
+    # Pen
+    penColors: [String!]
+    penDraws: [String!]
+    # Arrow
+    arrowType: String
+}
+
+input BoxInput {
+    boardID: ID!
+    userID: ID!
+    x: Int!
+    y: Int!
+    width: Int!
+    height: Int!
+    boxType: String!
+    order: Int!
+    angle: Int!
+    pinned: Boolean!
+    color: String
+    text: String
+    fontSize: Int
+    url: String
+    imageUrl: String
+    title: String
+    description: String
+    # Pen
+    penColors: [String!]
+    penDraws: [String!]
+    # Arrow
+    arrowType: String
+}
+
+type Query {
+    findBoxesInBoard(boardID: ID!, userID: ID!): [Box]
+}

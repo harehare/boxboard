@@ -1,0 +1,12 @@
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  .msg {
+    font-weight: 600;
+    color: var(--accent-color);
+  }
+}

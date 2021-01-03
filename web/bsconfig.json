@@ -1,0 +1,42 @@
+{
+    "name": "boxboard",
+    "reason": {
+        "react-jsx": 3
+    },
+    "sources": {
+        "dir": "src",
+        "subdirs": ["components", "data", "api"]
+    },
+    "bsc-flags": ["-bs-super-errors", "-bs-no-version-header"],
+    "package-specs": [
+        {
+            "module": "commonjs",
+            "in-source": true
+        }
+    ],
+    "suffix": ".bs.js",
+    "graphql": {
+        "apolloMode": true,
+        "extendMutation": "ApolloClient.GraphQL_PPX.ExtendMutation",
+        "extendQuery": "ApolloClient.GraphQL_PPX.ExtendQuery",
+        "extendSubscription": "ApolloClient.GraphQL_PPX.ExtendSubscription",
+        "templateTagReturnType": "ApolloClient.GraphQL_PPX.templateTagReturnType",
+        "templateTagImport": "gql",
+        "templateTagLocation": "@apollo/client"
+    },
+    "bs-dependencies": [
+        "reason-react",
+        "reductive",
+        "bs-fetch",
+        "@glennsl/bs-json",
+        "decco",
+        "bs-react-dropzone",
+        "@zpnester/bs-filereader",
+        "@reasonml-community/graphql-ppx",
+        "reason-apollo-client",
+        "reason-promise",
+        "remotedata-re"
+    ],
+    "ppx-flags": ["decco/ppx", "@reasonml-community/graphql-ppx/ppx"],
+    "refmt": 3
+}

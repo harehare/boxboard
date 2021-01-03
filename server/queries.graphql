@@ -1,0 +1,44 @@
+query findBoard($id: ID!, $userID: ID!) {
+    findBoxesInBoard(boardID: $id, userID: $userID) {
+        data {
+            _id
+            boardID
+            x
+            y
+            width
+            height
+            order
+            boxType
+            pinned
+            text
+            fontSize
+            url
+            penColors
+            penDraws
+            imageUrl
+            title
+            description
+            color
+            arrowType
+            angle
+        }
+    }
+}
+
+mutation createBox($data: BoxInput!) {
+    createBox(data: $data) {
+        _id
+    }
+}
+
+mutation updateBox($id: ID!, $data: BoxInput!) {
+    updateBox(id: $id, data: $data) {
+        _id
+    }
+}
+
+mutation deleteBox($id: ID!) {
+    deleteBox(id: $id) {
+        _id
+    }
+}

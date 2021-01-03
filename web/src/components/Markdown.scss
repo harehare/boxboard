@@ -1,0 +1,11 @@
+.markdown {
+  outline: none;
+  border: none;
+  background-color: var(--background-color);
+  resize: none;
+  font-size: 1rem;
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  padding: 8px;
+  background-color: transparent;
+}
