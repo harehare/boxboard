@@ -12,3 +12,13 @@ ReactDOMRe.renderToElementWithId(
   </Auth0>,
   "root",
 );
+
+%bs.raw
+{|
+if (
+    "serviceWorker" in navigator &&
+    !window.location.host.startsWith("localhost")
+) {
+    navigator.serviceWorker.register("/sw.js");
+}
+|};

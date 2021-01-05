@@ -19,12 +19,11 @@ use crate::infra::board::repository::BoardRepository;
 
 #[derive(Deserialize, Debug, Clone)]
 struct Config {
-    pub server_host: String,
-    pub server_port: String,
+    pub host: String,
+    pub port: String,
     pub faunadb_graphql_endpoint: String,
     pub faunadb_key: String,
     pub auth0_authority: String,
-    pub auth0_audience: String,
 }
 
 fn crawl() -> warp::filters::BoxedFilter<()> {
@@ -94,7 +93,7 @@ async fn main() {
         .with(warp::log("boxboard"))
         .with(&cors);
 
-    let server: SocketAddr = format!("{}:{}", config.server_host, config.server_port)
+    let server: SocketAddr = format!("{}:{}", config.host, config.port)
         .parse()
         .expect("Unable to parse address");
     warp::serve(routes.recover(handler::handle_rejection))

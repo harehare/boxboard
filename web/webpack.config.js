@@ -1,5 +1,4 @@
 const path = require("path");
-const webpack = require("webpack");
 const { merge } = require("webpack-merge");
 
 const CopyWebpackPlugin = require("copy-webpack-plugin");
@@ -12,6 +11,8 @@ const TerserPlugin = require("terser-webpack-plugin");
 const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin")
     .default;
 const ImageminPlugin = require("imagemin-webpack-plugin").default;
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+    .BundleAnalyzerPlugin;
 
 const dist = path.join(__dirname, "dist/");
 const mode =
@@ -31,6 +32,7 @@ const common = {
             inject: "body",
             inlineSource: ".css$",
         }),
+        new BundleAnalyzerPlugin(),
     ],
     resolve: {
         modules: [path.join(__dirname, "src"), "node_modules"],
@@ -87,10 +89,6 @@ const common = {
                     },
                 },
             },
-            {
-                test: /\.svg$/,
-                use: "svg-inline-loader",
-            },
         ],
     },
 };
@@ -123,7 +121,7 @@ if (mode === "production") {
             new CopyWebpackPlugin({
                 patterns: [
                     {
-                        from: "./assets",
+                        from: "../assets",
                     },
                 ],
             }),
@@ -172,6 +170,11 @@ if (mode === "production") {
                     terserOptions: {
                         compress: {
                             drop_console: true,
+                            pure_getters: true,
+                            keep_fargs: false,
+                            unsafe_comps: true,
+                            unsafe: true,
+                            passes: 3,
                         },
                     },
                 }),

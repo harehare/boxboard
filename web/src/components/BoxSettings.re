@@ -76,7 +76,7 @@ let make =
             ReactEvent.Mouse.stopPropagation(e);
             dispatch(BoxAction(Copy(box)));
           }}>
-          <i className="far fa-copy fa-lg" />
+          <Icon icon=Icon.faCopy className="fa-lg" />
         </div>
         <div
           className={j|button $fixed|j}
@@ -84,7 +84,7 @@ let make =
             ReactEvent.Mouse.stopPropagation(e);
             dispatch(BoxAction(Pinned(!box.pinned)));
           }}>
-          <i className="fas fa-thumbtack fa-lg" />
+          <Icon icon=Icon.faThumbtack className="fa-lg" />
         </div>
         <div
           className="button"
@@ -92,7 +92,7 @@ let make =
             onDelete(box);
             dispatch(BoxAction(Remove(box)));
           }}>
-          <i className="fas fa-trash fa-lg" />
+          <Icon icon=Icon.faTrash className="fa-lg" />
         </div>
       </div>
       {switch (box.kind) {

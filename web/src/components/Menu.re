@@ -29,14 +29,14 @@ let make = (~onDownload: unit => unit) => {
   <div className="menu">
     <div className="menu-button enabled-button">
       <a href="/" target="_blank" rel="noopener noreferrer">
-        <i className="fas fa-plus-circle" />
+        <Icon icon=Icon.faPlusCircle className="icon" />
         <span className="tooltip">
           <span className="text"> "New"->React.string </span>
         </span>
       </a>
     </div>
     <div className="menu-button enabled-button" onClick={_ => onDownload()}>
-      <i className="fas fa-download" />
+      <Icon icon=Icon.faDownload />
       <span className="tooltip">
         <span className="text"> "Download"->React.string </span>
       </span>
@@ -44,7 +44,7 @@ let make = (~onDownload: unit => unit) => {
     <div
       className={j|menu-button $undoDisabled|j}
       onClick={_ => dispatch(BoardAction(Undo))}>
-      <i className="fas fa-undo" />
+      <Icon icon=Icon.faUndo />
       <span className="tooltip">
         <span className="text"> "Undo"->React.string </span>
       </span>
@@ -52,7 +52,7 @@ let make = (~onDownload: unit => unit) => {
     <div
       className={j|menu-button $redoDisabled|j}
       onClick={_ => dispatch(BoardAction(Redo))}>
-      <i className="fas fa-redo" />
+      <Icon icon=Icon.faRedo />
       <span className="tooltip">
         <span className="text"> "Redo"->React.string </span>
       </span>
@@ -60,7 +60,7 @@ let make = (~onDownload: unit => unit) => {
     <div
       className="menu-button enabled-button"
       onClick={_ => dispatch(BoardAction(ZoomIn))}>
-      <i className="fas fa-minus" />
+      <Icon icon=Icon.faMinus />
       <span className="tooltip">
         <span className="text"> "Zoom-out"->React.string </span>
       </span>
@@ -69,7 +69,7 @@ let make = (~onDownload: unit => unit) => {
     <div
       className="menu-button enabled-button"
       onClick={_ => dispatch(BoardAction(ZoomOut))}>
-      <i className="fas fa-plus" />
+      <Icon icon=Icon.faPlus />
       <span className="tooltip">
         <span className="text"> "Zoom-in"->React.string </span>
       </span>

@@ -18,7 +18,7 @@ let make =
       <div style={ReactDOMRe.Style.make(~position="relative", ())}>
         <label className="file-icon">
           <input type_="file" className="input-file" multiple=false onChange />
-          <i className="fas icon fa-upload" />
+          <Icon icon=Icon.faUpload className="icon" />
         </label>
         <img
           src=image

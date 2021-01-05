@@ -2,10 +2,6 @@ open AppStore;
 [@bs.val] external window: Js.t({..}) = "window";
 [@bs.module] external uuidv4: unit => string = "uuid-random";
 [%bs.raw {|require('./Board.scss')|}];
-[%bs.raw {|require('@fortawesome/fontawesome-free/js/fontawesome')|}];
-[%bs.raw {|require('@fortawesome/fontawesome-free/js/solid')|}];
-[%bs.raw {|require('@fortawesome/fontawesome-free/js/regular')|}];
-[%bs.raw {|require('@fortawesome/fontawesome-free/js/brands')|}];
 [@bs.module] external logo: string = "../assets/logo.svg";
 
 module Document = {
@@ -195,7 +191,7 @@ let make = (~id) => {
       <div
         className={j|$cursorStyle button|j}
         onClick={_ => dispatch(BoardAction(Cursor))}>
-        <i className="fas fa-mouse-pointer fa-lg" />
+        <Icon icon=Icon.faMousePointer className="fa-lg" />
         <span className="tooltip">
           <span className="text"> "Cursor"->React.string </span>
         </span>
@@ -216,7 +212,7 @@ let make = (~id) => {
             ),
           )
         }>
-        <i className="fas fa-pen fa-lg" />
+        <Icon icon=Icon.faPen className="fa-lg" />
         <span className="tooltip">
           <span className="text"> "Pen"->React.string </span>
         </span>
@@ -226,7 +222,7 @@ let make = (~id) => {
         onClick={_ =>
           dispatch(BoardAction(Adding(Box.Square(Color.yellow))))
         }>
-        <i className="far fa-square fa-lg" />
+        <Icon icon=Icon.faSquare className="fa-lg" />
         <span className="tooltip">
           <span className="text"> "Square"->React.string </span>
         </span>
@@ -240,7 +236,7 @@ let make = (~id) => {
             ),
           )
         }>
-        <i className="fab fa-markdown fa-lg" />
+        <Icon icon=Icon.faStickyNote className="fa-lg" />
         <span className="tooltip">
           <span className="text"> "Markdown"->React.string </span>
         </span>
@@ -248,7 +244,7 @@ let make = (~id) => {
       <div
         className={j|$imageStyle button|j}
         onClick={_ => dispatch(BoardAction(Adding(Box.Image(None))))}>
-        <i className="far fa-image fa-lg" />
+        <Icon icon=Icon.faImage className="fa-lg" />
         <span className="tooltip">
           <span className="text"> "Image"->React.string </span>
         </span>
@@ -256,7 +252,7 @@ let make = (~id) => {
       <div
         className={j|$webStyle button|j}
         onClick={_ => dispatch(BoardAction(Adding(Box.Web("", None))))}>
-        <i className="fas fa-globe fa-lg" />
+        <Icon icon=Icon.faGlobe className="fa-lg" />
         <span className="tooltip">
           <span className="text"> "Web"->React.string </span>
         </span>
@@ -268,7 +264,7 @@ let make = (~id) => {
             BoardAction(Adding(Box.Arrow(Color.black, ArrowType.Arrow, 0))),
           )
         }>
-        <i className="fas fa-arrow-right fa-lg" />
+        <Icon icon=Icon.faArrowRight className="fa-lg" />
         <span className="tooltip">
           <span className="text"> "Arrow"->React.string </span>
         </span>
