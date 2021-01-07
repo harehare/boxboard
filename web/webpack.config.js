@@ -107,7 +107,7 @@ if (mode === "production") {
     module.exports = merge(common, {
         plugins: [
             new WorkboxWebpackPlugin.GenerateSW({
-                swDest: dist + "/sw.js",
+                swDest: dist + "sw.js",
                 clientsClaim: true,
                 skipWaiting: true,
             }),
@@ -121,7 +121,7 @@ if (mode === "production") {
             new CopyWebpackPlugin({
                 patterns: [
                     {
-                        from: "../assets",
+                        from: "./assets",
                     },
                 ],
             }),
@@ -170,11 +170,8 @@ if (mode === "production") {
                     terserOptions: {
                         compress: {
                             drop_console: true,
-                            pure_getters: true,
-                            keep_fargs: false,
                             unsafe_comps: true,
                             unsafe: true,
-                            passes: 3,
                         },
                     },
                 }),

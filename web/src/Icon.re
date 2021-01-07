@@ -11,9 +11,6 @@ external make:
 [@bs.module "@fortawesome/fontawesome-svg-core"] [@bs.scope "library"]
 external libraryAdd: icon => unit = "library";
 
-[@bs.module "@fortawesome/fontawesome-svg-core"] [@bs.scope "dom"]
-external domWatch: unit => unit = "watch";
-
 [@bs.module "@fortawesome/free-solid-svg-icons"]
 external faMousePointer: icon = "faMousePointer";
 
@@ -81,5 +78,3 @@ libraryAdd(faUndo);
 libraryAdd(faRedo);
 libraryAdd(faMinus);
 libraryAdd(faPlus);
-
-domWatch();

@@ -1,0 +1,76 @@
+name: build
+on:
+    push:
+        branches:
+            - release
+jobs:
+    build:
+        name: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repo
+              uses: actions/checkout@v2
+            - uses: actions/cache@v2
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - name: Install Dependencies
+              working-directory: web
+              if: steps.cache.outputs.cache-hit != 'true'
+              run: npm install
+            - name: Build
+              working-directory: web
+              env:
+                  AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+                  AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+                  AUTH0_REDIRECT_URI: ${{ secrets.AUTH0_REDIRECT_URI }}
+                  AUHT0_AUDIENCE: ${{ secrets.AUHT0_AUDIENCE }}
+                  API_URL: ${{ secrets.API_URL }}
+              run: npm run prod
+            - name: Archive Production Artifact
+              uses: actions/upload-artifact@master
+              with:
+                  name: dist
+                  path: web/dist
+    deploy:
+        name: deploy
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repo
+              uses: actions/checkout@v2
+            - name: Download Artifact
+              uses: actions/download-artifact@v2
+              with:
+                  name: dist
+                  path: web/dist
+            - name: Deploy to Firebase
+              uses: w9jds/firebase-action@master
+              with:
+                  args: deploy --only hosting
+              env:
+                  FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+                  PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+            # - name: Add server remote origin
+            #   run: git remote add heroku https://heroku:${{ secrets.HEROKU_API_TOKEN }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+            #   env:
+            #       HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
+            #       HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+            # - name: Deploy server to Heroku
+            #   run: git push heroku `git subtree split --prefix server HEAD`:master --force
+    audit:
+        runs-on: ubuntu-latest
+        name: audit
+        needs: deploy
+        steps:
+            - name: Audit live URL
+              uses: jakejarvis/lighthouse-action@master
+              with:
+                  url: "https://boxboard.space"
+            - name: Upload results as an artifact
+              uses: actions/upload-artifact@master
+              with:
+                  name: report
+                  path: "./report"
