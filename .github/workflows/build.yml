@@ -28,7 +28,9 @@ jobs:
                   AUTH0_REDIRECT_URI: ${{ secrets.AUTH0_REDIRECT_URI }}
                   AUHT0_AUDIENCE: ${{ secrets.AUHT0_AUDIENCE }}
                   API_URL: ${{ secrets.API_URL }}
-              run: npm run prod
+              run: |
+                  npm run build
+                  npm run prod
             - name: Archive Production Artifact
               uses: actions/upload-artifact@master
               with:
@@ -60,17 +62,17 @@ jobs:
             #       HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
             # - name: Deploy server to Heroku
             #   run: git push heroku `git subtree split --prefix server HEAD`:master --force
-    audit:
-        runs-on: ubuntu-latest
-        name: audit
-        needs: deploy
-        steps:
-            - name: Audit live URL
-              uses: jakejarvis/lighthouse-action@master
-              with:
-                  url: "https://boxboard.space"
-            - name: Upload results as an artifact
-              uses: actions/upload-artifact@master
-              with:
-                  name: report
-                  path: "./report"
+    # audit:
+    #     runs-on: ubuntu-latest
+    #     name: audit
+    #     needs: deploy
+    #     steps:
+    #         - name: Audit live URL
+    #           uses: jakejarvis/lighthouse-action@master
+    #           with:
+    #               url: "https://boxboard.space"
+    #         - name: Upload results as an artifact
+    #           uses: actions/upload-artifact@master
+    #           with:
+    #               name: report
+    #               path: "./report"

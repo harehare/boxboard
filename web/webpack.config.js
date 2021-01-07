@@ -11,8 +11,8 @@ const TerserPlugin = require("terser-webpack-plugin");
 const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin")
     .default;
 const ImageminPlugin = require("imagemin-webpack-plugin").default;
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
-    .BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+//     .BundleAnalyzerPlugin;
 
 const dist = path.join(__dirname, "dist/");
 const mode =
@@ -32,7 +32,7 @@ const common = {
             inject: "body",
             inlineSource: ".css$",
         }),
-        new BundleAnalyzerPlugin(),
+        // new BundleAnalyzerPlugin(),
     ],
     resolve: {
         modules: [path.join(__dirname, "src"), "node_modules"],
@@ -130,6 +130,7 @@ if (mode === "production") {
                 filename: "[name]-[hash].css",
                 chunkFilename: "[id]-[contenthash].css",
             }),
+            // new ShakePlugin(),
         ],
         module: {
             rules: [
