@@ -47,6 +47,7 @@ input {
 
 .box {
     transition: all 0.3s ease 0s;
+    box-sizing: border-box;
     &:hover {
         rect {
             stroke: var(--accent-color2);

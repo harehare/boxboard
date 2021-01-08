@@ -2,6 +2,8 @@
 
 Place the box and create a board.
 
+![image](./img/img.png)
+
 ## Developing
 
 ```sh

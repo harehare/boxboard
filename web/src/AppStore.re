@@ -354,8 +354,8 @@ let boxReduce = (state, action) => {
       let (fromX, fromY) = b.movePosition;
       let (toX, toY) = position;
       let (width, height) = b.size;
-      let x = x + toX - fromX;
-      let y = y + toY - fromY;
+      let x = x + scale(toX - fromX, state.scale);
+      let y = y + scale(toY - fromY, state.scale);
       {
         ...state,
         boardAction:
@@ -363,7 +363,10 @@ let boxReduce = (state, action) => {
             ...b,
             position: (x, y),
             movePosition: position,
-            size: (width + fromX - toX, height + fromY - toY),
+            size: (
+              width + scale(fromX - toX, state.scale),
+              height + scale(fromY - toY, state.scale),
+            ),
           }),
       };
     | Select(b) when b.status == ResizeTopRight =>
@@ -371,7 +374,7 @@ let boxReduce = (state, action) => {
       let (fromX, fromY) = b.movePosition;
       let (toX, toY) = position;
       let (width, height) = b.size;
-      let y = y + toY - fromY;
+      let y = y + scale(toY - fromY, state.scale);
       {
         ...state,
         boardAction:
@@ -379,7 +382,10 @@ let boxReduce = (state, action) => {
             ...b,
             position: (x, y),
             movePosition: position,
-            size: (width + toX - fromX, height - (toY - fromY)),
+            size: (
+              width + scale(toX - fromX, state.scale),
+              height - scale(toY - fromY, state.scale),
+            ),
           }),
       };
     | Select(b) when b.status == ResizeBottomLeft =>
@@ -387,7 +393,7 @@ let boxReduce = (state, action) => {
       let (fromX, fromY) = b.movePosition;
       let (toX, toY) = position;
       let (width, height) = b.size;
-      let x = x - (fromX - toX);
+      let x = scale(x - (fromX - toX), state.scale);
       {
         ...state,
         boardAction:
@@ -395,7 +401,10 @@ let boxReduce = (state, action) => {
             ...b,
             position: (x, y),
             movePosition: position,
-            size: (width + (fromX - toX), height + (toY - fromY)),
+            size: (
+              width + scale(fromX - toX, state.scale),
+              height + scale(toY - fromY, state.scale),
+            ),
           }),
       };
     | Select(b) when b.status == ResizeBottomRight =>
@@ -408,7 +417,10 @@ let boxReduce = (state, action) => {
           Select({
             ...b,
             movePosition: position,
-            size: (width + (toX - fromX), height + (toY - fromY)),
+            size: (
+              width + scale(toX - fromX, state.scale),
+              height + scale(toY - fromY, state.scale),
+            ),
           }),
       };
     | _ => state
