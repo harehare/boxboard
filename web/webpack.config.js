@@ -171,8 +171,6 @@ if (mode === "production") {
                     terserOptions: {
                         compress: {
                             drop_console: true,
-                            unsafe_comps: true,
-                            unsafe: true,
                         },
                     },
                 }),
