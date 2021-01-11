@@ -15,7 +15,7 @@ Open http://localhost:3000 and start modifying the code in /src.
 ## Production
 
 ```sh
-npm run prod
+$ npm run prod
 ```
 
 ## TODO :construction:
@@ -24,6 +24,7 @@ npm run prod
 -   [ ] Add audio
 -   [ ] Add tests
 -   [ ] Add minimap
+-   [ ] Add board share function
 
 ## License
 
