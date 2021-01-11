@@ -32,7 +32,7 @@
         "bs-react-dropzone",
         "@zpnester/bs-filereader",
         "@reasonml-community/graphql-ppx",
-        "reason-apollo-client",
+        "rescript-apollo-client",
         "reason-promise",
         "remotedata-re"
     ],
