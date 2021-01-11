@@ -4,13 +4,17 @@ open AppStore;
 
 let scaleSelector = state => state.scale;
 let eventLogSelector = state => state.eventLog;
+let searchQuerySelector = state => state.searchQuery;
 
 [@react.component]
 let make = (~onDownload: unit => unit) => {
   let dispatch = useDispatch();
   let scale = useSelector(scaleSelector);
   let eventLog = useSelector(eventLogSelector);
+  let searchQuery = useSelector(searchQuerySelector);
   let scale = int_of_float(scale *. 100.0 +. 0.05);
+  let (isSearch, onSearch) = React.useState(_ => false);
+  let inputRef = React.useRef(Js.Nullable.null);
 
   let undoDisabled =
     if (List.length(eventLog.events.events) > 0) {
@@ -26,6 +30,23 @@ let make = (~onDownload: unit => unit) => {
       "disabled-button";
     };
 
+  React.useEffect1(
+    () => {
+      (
+        switch (Js.Nullable.toOption(inputRef.current)) {
+        | Some(element) =>
+          let elementObj = ReactDOMRe.domElementToObj(element);
+          elementObj##focus() |> ignore;
+          ();
+        | None => ()
+        }
+      )
+      |> ignore;
+      None;
+    },
+    [|isSearch|],
+  );
+
   <div className="menu">
     <div className="menu-button enabled-button">
       <a href="/" target="_blank" rel="noopener noreferrer">
@@ -34,6 +55,39 @@ let make = (~onDownload: unit => unit) => {
           <span className="text"> "New"->React.string </span>
         </span>
       </a>
+    </div>
+    <div
+      className="menu-button enabled-button"
+      onClick={e => {
+        ReactEvent.Mouse.stopPropagation(e);
+        onSearch(_ => true);
+      }}>
+      <div className="search">
+        <Icon icon=Icon.faSearch className="icon" />
+        <input
+          type_="text"
+          style={ReactDOMRe.Style.make(
+            ~width=isSearch ? "160px" : "0px",
+            ~marginLeft=isSearch ? "8px" : "0px",
+            ~borderBottom=isSearch ? "1px solid var(--border-color)" : "none",
+            (),
+          )}
+          className="input"
+          ref={ReactDOMRe.Ref.domRef(inputRef)}
+          placeholder="Search"
+          value={Belt.Option.getWithDefault(searchQuery, "")}
+          onInput={e => {
+            let value = ReactEvent.Form.target(e)##value;
+            dispatch(
+              BoardAction(Search(value == "" ? None : Some(value))),
+            );
+          }}
+          onBlur={_ => {onSearch(_ => false)}}
+        />
+      </div>
+      <span className="tooltip">
+        <span className="text"> "Search"->React.string </span>
+      </span>
     </div>
     <div className="menu-button enabled-button" onClick={_ => onDownload()}>
       <Icon icon=Icon.faDownload />

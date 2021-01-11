@@ -30,6 +30,7 @@ type boardAction =
   | StartMoveBoard(Box.position)
   | MoveBoard(Box.position)
   | StopMoveBoard
+  | Search(option(string))
   | ZoomIn
   | ZoomOut
   | Undo
@@ -72,6 +73,7 @@ type appState = {
   eventLog: Event.eventLog,
   minOrder: int,
   maxOrder: int,
+  searchQuery: option(string),
 };
 
 let minOrder = (l: list(Box.t)) =>
@@ -87,21 +89,20 @@ let mapSelectBox = (appState, f: Box.t => appState) => {
   };
 };
 
-let boardReduce = (state, boardAction) => {
-  let newState = () => {
-    switch (state.boardAction) {
-    | Select(box) => {
-        ...state,
-        data:
-          RemoteData.map(
-            boxes => boxes->Belt.Map.set(box.id, box),
-            state.data,
-          ),
-      }
-    | _ => state
-    };
-  };
+let newState = state => {
+  state->mapSelectBox(box =>
+    {
+      ...state,
+      data:
+        RemoteData.map(
+          boxes => boxes->Belt.Map.set(box.id, box),
+          state.data,
+        ),
+    }
+  );
+};
 
+let boardReduce = (state, boardAction) => {
   switch (boardAction) {
   | Init(id) => {...state, id}
   | UpdateBoxId(oldId, newId) =>
@@ -137,7 +138,7 @@ let boardReduce = (state, boardAction) => {
       maxOrder,
     };
   | Error(err) => {...state, data: RemoteData.Failure(err)}
-  | Cursor => {...newState(), boardAction}
+  | Cursor => {...newState(state), boardAction}
   | StartMoveBoard(position) => {
       ...state,
       boardAction: MoveBoard(position),
@@ -154,7 +155,7 @@ let boardReduce = (state, boardAction) => {
       boardAction,
     };
   | StopMoveBoard => {...state, boardAction}
-  | Adding(_) => {...newState(), boardAction}
+  | Adding(_) => {...newState(state), boardAction}
   | Add(box) =>
     switch (state.boardAction) {
     | Adding(_) =>
@@ -240,6 +241,7 @@ let boardReduce = (state, boardAction) => {
       data:
         RemoteData.map(_ => current.current->BoxList.fromList, state.data),
     };
+  | Search(searchQuery) => {...state, searchQuery}
   };
 };
 
@@ -270,12 +272,13 @@ let boxReduce = (state, action) => {
       | _ => state
       }
     )
-  | LoadUrlComplete(Belt.Result.Error(e)) =>
+  | LoadUrlComplete(Belt.Result.Error(_)) =>
     state->mapSelectBox(box =>
       switch (box.kind) {
       | Box.Web(_, _) => {
           ...state,
-          boardAction: Select({...box, loading: false, kind: Error(e)}),
+          boardAction:
+            Select({...box, loading: false, kind: Error("Error")}),
         }
       | _ => state
       }
@@ -686,8 +689,12 @@ let thunk = (store, next, action) => {
         Fetch.fetch({j|$(apiUrl)/crawl/$(encodedUrl)|j})
         |> then_(Fetch.Response.json)
         |> then_(json => {
-             let page = Box.decodePage(json);
-             next(BoxAction(LoadUrlComplete(Belt.Result.Ok(page))));
+             let page =
+               switch (Box.page_decode(json)) {
+               | Ok(page) => Ok(page)
+               | Error(e) => Error(e.message)
+               };
+             next(BoxAction(LoadUrlComplete(page)));
              Some(page) |> resolve;
            })
         |> catch(_ => {
@@ -722,6 +729,7 @@ let appStore =
       eventLog: Event.empty(),
       minOrder: 0,
       maxOrder: 0,
+      searchQuery: None,
     },
     ~enhancer=(store, next) => thunk(store) @@ next,
     (),

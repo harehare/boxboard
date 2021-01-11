@@ -6,11 +6,7 @@ let httpLink =
   );
 
 let authLink =
-  ApolloClient.Link.ContextLink.make(
-    (
-      ~operation: ApolloClient__Link_Context.GraphQLRequest.t,
-      ~prevContext: Js.Json.t,
-    ) => {
+  ApolloClient.Link.ContextLink.make((~operation, ~prevContext) => {
     let token =
       Dom.Storage.getItem(Constants.sessionToken, Dom.Storage.sessionStorage);
     let headers = {

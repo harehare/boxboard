@@ -1,9 +1,8 @@
 .menu {
-    width: 100px;
     height: 48px;
     position: fixed;
     bottom: 16px;
-    right: 128px;
+    right: 4px;
     background-color: transparent;
     border-radius: 2px;
     display: flex;
@@ -27,7 +26,7 @@
 
 .menu-button {
     font-size: 1.15rem;
-    padding: 16px;
+    margin: 16px;
     a {
         color: var(--background-color-dark);
         &:hover {
@@ -54,7 +53,7 @@
         transition: opacity 500ms;
         width: 100px;
         bottom: 10%;
-        top: -20px;
+        top: -40px;
         margin-left: -60px;
         border-radius: 12px;
 
@@ -65,5 +64,18 @@
             font-size: 0.8rem;
             display: inline-block;
         }
+    }
+}
+
+.search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .input {
+        padding: 4px;
+        border: none;
+        outline: none;
+        background-color: var(--main-color);
+        transition: width 0.15s ease-out;
     }
 }

@@ -15,7 +15,6 @@
         }
     ],
     "suffix": ".bs.js",
-    "namespace": true,
     "graphql": {
         "apolloMode": true,
         "extendMutation": "ApolloClient.GraphQL_PPX.ExtendMutation",
@@ -29,7 +28,6 @@
         "reason-react",
         "reductive",
         "bs-fetch",
-        "@glennsl/bs-json",
         "decco",
         "bs-react-dropzone",
         "@zpnester/bs-filereader",

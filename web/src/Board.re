@@ -26,6 +26,7 @@ let boardActionSelector = state => state.boardAction;
 let dataSelector = state => state.data;
 let positionSelector = state => state.position;
 let scaleSelector = state => state.scale;
+let searchQuerySelector = state => state.searchQuery;
 
 [@react.component]
 let make = (~id) => {
@@ -34,6 +35,7 @@ let make = (~id) => {
   let data = useSelector(dataSelector);
   let position = useSelector(positionSelector);
   let scale = useSelector(scaleSelector);
+  let searchQuery = useSelector(searchQuerySelector);
   let width = window##parent##screen##width;
   let height = window##parent##screen##height;
   let (x, y) = position;
@@ -147,13 +149,40 @@ let make = (~id) => {
   });
 
   let boxList =
-    React.useMemo1(
+    React.useMemo2(
       () =>
-        switch (data) {
-        | RemoteData.Success(boxes) => boxes->BoxList.toList
+        switch (data, searchQuery) {
+        | (RemoteData.Success(boxes), None) => boxes->BoxList.toList
+        | (RemoteData.Success(boxes), Some(query)) =>
+          boxes->BoxList.filter((v: Box.t) =>
+            switch (v.kind) {
+            | Box.Markdown(text, _, _) =>
+              Js.String2.indexOf(
+                text->String.lowercase_ascii,
+                query->String.lowercase_ascii,
+              )
+              != (-1)
+            | Box.Web(_, Some(page)) =>
+              Js.String2.indexOf(
+                page.title
+                ->Belt.Option.getWithDefault("")
+                ->String.lowercase_ascii,
+                query->String.lowercase_ascii,
+              )
+              != (-1)
+              || Js.String2.indexOf(
+                   page.description
+                   ->Belt.Option.getWithDefault("")
+                   ->String.lowercase_ascii,
+                   query->String.lowercase_ascii,
+                 )
+              != (-1)
+            | _ => true
+            }
+          )
         | _ => []
         },
-      [|data|],
+      (data, searchQuery),
     );
 
   <div

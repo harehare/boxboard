@@ -78,3 +78,7 @@ let size = (boxList: t): Box.size => {
     ),
   );
 };
+
+let filter = (boxList, f) => {
+  List.filter(f, boxList->toList);
+};

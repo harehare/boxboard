@@ -102,14 +102,6 @@ type boxData = {
   scale: float,
 };
 
-let decodePage = json => {
-  Json.Decode.{
-    imageUrl: field("image_url", string)->optional(json),
-    title: field("title", string)->optional(json),
-    description: field("description", string)->optional(json),
-  };
-};
-
 let drawPoints = (points: list(position)) => {
   switch (points) {
   | [head] =>
