@@ -65,6 +65,9 @@ external faPlus: icon = "faPlus";
 [@bs.module "@fortawesome/free-solid-svg-icons"]
 external faSearch: icon = "faSearch";
 
+[@bs.module "@fortawesome/free-solid-svg-icons"]
+external faMap: icon = "faMap";
+
 libraryAdd(faMousePointer);
 libraryAdd(faPen);
 libraryAdd(faSquare);
@@ -82,3 +85,4 @@ libraryAdd(faRedo);
 libraryAdd(faMinus);
 libraryAdd(faPlus);
 libraryAdd(faSearch);
+libraryAdd(faMap);

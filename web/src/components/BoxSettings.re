@@ -20,7 +20,7 @@ let make =
     x->scaleUp(scale)
     - (130 - int_of_float(float_of_int(width->scaleUp(scale)) /. 2.0))
     + offsetX;
-  let newY = y->scaleUp(scale) + height->scaleUp(scale) + 32 + offsetY;
+  let newY = y->scaleUp(scale) + height->scaleUp(scale) + 64 + offsetY;
   let fixed = box.pinned ? "fixed" : "";
 
   let fontSizeChanged = e => {

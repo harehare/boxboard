@@ -18,7 +18,7 @@ let marked = [%bs.raw
       pedantic: false,
       gfm: true,
       breaks: false,
-      sanitize: false,
+      sanitize: true,
       smartLists: true,
       smartypants: false,
       xhtml: false

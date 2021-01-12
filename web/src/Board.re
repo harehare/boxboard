@@ -4,24 +4,6 @@ open AppStore;
 [%bs.raw {|require('./Board.scss')|}];
 [@bs.module] external logo: string = "../assets/logo.svg";
 
-module Document = {
-  type element;
-  let window: element = [%bs.raw "window"];
-
-  [@bs.send]
-  external addEventListener:
-    (element, string, ReactEvent.Keyboard.t => unit) => unit =
-    "addEventListener";
-
-  [@bs.send]
-  external removeEventListener:
-    (element, string, ReactEvent.Keyboard.t => unit) => unit =
-    "removeEventListener";
-
-  [@bs.get] external getWidth: element => int = "innerWidth";
-  [@bs.get] external getHeight: element => int = "innerHeight";
-};
-
 let boardActionSelector = state => state.boardAction;
 let dataSelector = state => state.data;
 let positionSelector = state => state.position;
@@ -205,6 +187,8 @@ let make = (~id) => {
     />
     <Header />
     <Menu
+      boxList
+      position
       onDownload={onDownload(
         {switch (data) {
          | RemoteData.Success(boxes) => boxes

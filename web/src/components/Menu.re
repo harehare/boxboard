@@ -7,13 +7,14 @@ let eventLogSelector = state => state.eventLog;
 let searchQuerySelector = state => state.searchQuery;
 
 [@react.component]
-let make = (~onDownload: unit => unit) => {
+let make = (~boxList: list(Box.t), ~position, ~onDownload: unit => unit) => {
   let dispatch = useDispatch();
   let scale = useSelector(scaleSelector);
   let eventLog = useSelector(eventLogSelector);
   let searchQuery = useSelector(searchQuerySelector);
-  let scale = int_of_float(scale *. 100.0 +. 0.05);
+  let scalePer = int_of_float(scale *. 100.0 +. 0.05);
   let (isSearch, onSearch) = React.useState(_ => false);
+  let (visibleMap, onVisibleMap) = React.useState(_ => false);
   let inputRef = React.useRef(Js.Nullable.null);
 
   let undoDisabled =
@@ -29,6 +30,10 @@ let make = (~onDownload: unit => unit) => {
     } else {
       "disabled-button";
     };
+
+  let searchStyle = if (isSearch) {"select-button"} else {""};
+
+  let mapStyle = if (visibleMap) {"select-button"} else {""};
 
   React.useEffect1(
     () => {
@@ -48,6 +53,7 @@ let make = (~onDownload: unit => unit) => {
   );
 
   <div className="menu">
+    <Map boxList position scale visible=visibleMap />
     <div className="menu-button enabled-button">
       <a href="/" target="_blank" rel="noopener noreferrer">
         <Icon icon=Icon.faPlusCircle className="icon" />
@@ -57,7 +63,7 @@ let make = (~onDownload: unit => unit) => {
       </a>
     </div>
     <div
-      className="menu-button enabled-button"
+      className={j|menu-button enabled-button $searchStyle|j}
       onClick={e => {
         ReactEvent.Mouse.stopPropagation(e);
         onSearch(_ => true);
@@ -87,6 +93,14 @@ let make = (~onDownload: unit => unit) => {
       </div>
       <span className="tooltip">
         <span className="text"> "Search"->React.string </span>
+      </span>
+    </div>
+    <div
+      className={j|menu-button enabled-button $mapStyle|j}
+      onClick={_ => onVisibleMap(p => !p)}>
+      <Icon icon=Icon.faMap />
+      <span className="tooltip">
+        <span className="text"> "Map"->React.string </span>
       </span>
     </div>
     <div className="menu-button enabled-button" onClick={_ => onDownload()}>
@@ -119,7 +133,7 @@ let make = (~onDownload: unit => unit) => {
         <span className="text"> "Zoom-out"->React.string </span>
       </span>
     </div>
-    <div className="scale"> {j|$(scale)%|j}->React.string </div>
+    <div className="scale"> {j|$(scalePer)%|j}->React.string </div>
     <div
       className="menu-button enabled-button"
       onClick={_ => dispatch(BoardAction(ZoomOut))}>
