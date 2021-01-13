@@ -3,9 +3,19 @@ let getMousePosition = (e: ReactEvent.Mouse.t) => (
   ReactEvent.Mouse.pageY(e),
 );
 
+let getClientMousePosition = (e: ReactEvent.Mouse.t) => (
+  ReactEvent.Mouse.clientX(e),
+  ReactEvent.Mouse.clientY(e),
+);
+
 let getTouchPosition = (e: ReactEvent.Touch.t) => (
   ReactEvent.Touch.touches(e)##item(0)##pageX,
   ReactEvent.Touch.touches(e)##item(0)##pageY,
+);
+
+let getClientTouchPosition = (e: ReactEvent.Touch.t) => (
+  ReactEvent.Touch.touches(e)##item(0)##clientX,
+  ReactEvent.Touch.touches(e)##item(0)##clientY,
 );
 
 module Promise = {

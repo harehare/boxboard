@@ -37,7 +37,7 @@ const common = {
     resolve: {
         modules: [path.join(__dirname, "src"), "node_modules"],
         extensions: [".bs.js", ".js", ".scss", ".css"],
-        fallback: { stream: false },
+        fallback: { path: false },
     },
     module: {
         rules: [

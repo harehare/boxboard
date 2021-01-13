@@ -12,6 +12,7 @@ let make = (~boxList: list(Box.t), ~scale, ~position, ~visible: bool) => {
     (float_of_int(window##parent##screen##width) /. scale)->int_of_float;
   let boxHeight =
     (float_of_int(window##parent##screen##height) /. scale)->int_of_float;
+
   <div
     className="map"
     style={ReactDOMRe.Style.make(
