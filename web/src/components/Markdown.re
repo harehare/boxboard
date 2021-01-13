@@ -1,7 +1,6 @@
 open Box;
 
 [%bs.raw {|require('./Markdown.scss')|}];
-[@bs.module] external sanitizeHtml: string => string = "sanitize-html";
 
 let marked = [%bs.raw
   {|
@@ -146,7 +145,7 @@ let make =
       <div
         className="markdown"
         style={ReactDOMRe.Style.make(~fontSize={j|$(fontSize)px|j}, ())}
-        dangerouslySetInnerHTML={"__html": sanitizeHtml(marked(text))}
+        dangerouslySetInnerHTML={"__html": marked(text)}
       />
     </foreignObject>;
   };
