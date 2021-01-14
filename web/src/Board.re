@@ -1,5 +1,4 @@
 open AppStore;
-[@bs.val] external window: Js.t({..}) = "window";
 [@bs.module] external uuidv4: unit => string = "uuid-random";
 [%bs.raw {|require('./Board.scss')|}];
 [@bs.module] external logo: string = "../assets/logo.svg";
@@ -18,8 +17,7 @@ let make = (~id) => {
   let position = useSelector(positionSelector);
   let scale = useSelector(scaleSelector);
   let searchQuery = useSelector(searchQuerySelector);
-  let width = window##parent##screen##width;
-  let height = window##parent##screen##height;
+  let (width, height) = Utils.screenSize();
   let (x, y) = position;
   let {isAuthenticated} = Auth0.useAuth0();
   let {error: queryError, loading: queryLoading} = Hooks.useQuery(id);

@@ -16,11 +16,13 @@ let make =
   let (width, height) = box.size;
   let (offsetX, offsetY) = position;
   let (x, y) = box.position;
+  let (_, screenHeight) = Utils.screenSize();
   let newX =
     x->scaleUp(scale)
     - (130 - int_of_float(float_of_int(width->scaleUp(scale)) /. 2.0))
     + offsetX;
   let newY = y->scaleUp(scale) + height->scaleUp(scale) + 64 + offsetY;
+  let newY = newY + 230 > screenHeight ? y->scaleUp(scale) - 64 : newY;
   let fixed = box.pinned ? "fixed" : "";
 
   let fontSizeChanged = e => {
@@ -44,6 +46,7 @@ let make =
   <div
     style={ReactDOMRe.Style.make(
       ~width="260px",
+      ~transition="top 0.05s linear",
       ~position="fixed",
       ~top={j|$(newY)px|j},
       ~left={j|$(newX)px|j},

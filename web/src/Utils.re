@@ -1,3 +1,9 @@
+[@bs.val] external window: Js.t({..}) = "window";
+
+let screenSize = () => {
+  (window##parent##screen##width, window##parent##screen##height);
+};
+
 let getMousePosition = (e: ReactEvent.Mouse.t) => (
   ReactEvent.Mouse.pageX(e),
   ReactEvent.Mouse.pageY(e),

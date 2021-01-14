@@ -69,7 +69,9 @@ let useQuery = (boardId: string): queryResult => {
                   switch (result) {
                   | Ok(boxes) =>
                     dispatch(
-                      BoardAction(LoadedBoard(boardId, boxes, true)),
+                      BoardAction(
+                        LoadedBoard(boardId, boxes, (0, 0), true),
+                      ),
                     );
                     setState(_ => {error: None, loading: false});
                     Js.Promise.resolve();
@@ -83,17 +85,22 @@ let useQuery = (boardId: string): queryResult => {
             });
         } else {
           switch (localBoardValue) {
-          | None => dispatch(BoardAction(LoadedBoard(boardId, [], false)))
+          | None =>
+            dispatch(BoardAction(LoadedBoard(boardId, [], (0, 0), false)))
           | Some(j) =>
             let result = Js.Json.parseExn(j) |> Box.boxData_decode;
 
-            if (Belt.Result.isOk(result)) {
-              let boxData = Belt.Result.getExn(result);
+            switch (result) {
+            | Ok(v) =>
               dispatch(
-                BoardAction(LoadedBoard(boardId, boxData.boxes, false)),
-              );
-            } else {
-              dispatch(BoardAction(LoadedBoard(boardId, [], false)));
+                BoardAction(
+                  LoadedBoard(boardId, v.boxes, v.position, false),
+                ),
+              )
+            | Error(_) =>
+              dispatch(
+                BoardAction(LoadedBoard(boardId, [], (0, 0), false)),
+              )
             };
           };
           Js.Promise.resolve();

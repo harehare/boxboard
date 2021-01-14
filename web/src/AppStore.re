@@ -20,7 +20,7 @@ type boardAction =
   | Init(string)
   | UpdateBoxId(string, string)
   | LoadingBoard
-  | LoadedBoard(string, list(Box.t), isRemote)
+  | LoadedBoard(string, list(Box.t), Box.position, isRemote)
   | Error(error)
   | Cursor
   | Adding(Box.kind)
@@ -121,7 +121,7 @@ let boardReduce = (state, boardAction) => {
       }
     )
   | LoadingBoard => {...state, data: RemoteData.Loading(BoxList.empty)}
-  | LoadedBoard(id, boxes, isRemote) =>
+  | LoadedBoard(id, boxes, position, isRemote) =>
     let minOrder = boxes->minOrder;
     let maxOrder = boxes->maxOrder;
     {
@@ -134,6 +134,7 @@ let boardReduce = (state, boardAction) => {
           state.data,
         ),
       eventLog: boxes->Event.init,
+      position,
       minOrder,
       maxOrder,
     };
@@ -215,8 +216,8 @@ let boardReduce = (state, boardAction) => {
       }
     | _ => state
     };
-  | ZoomIn => {...state, scale: state.scale -. 0.05}
-  | ZoomOut => {...state, scale: state.scale +. 0.05}
+  | ZoomIn => {...state, scale: state.scale -. 0.01}
+  | ZoomOut => {...state, scale: state.scale +. 0.01}
   | Undo =>
     let current = state.eventLog->Event.undo;
     {

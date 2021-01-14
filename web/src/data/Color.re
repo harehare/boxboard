@@ -16,8 +16,10 @@ let yellow = {red: 255, green: 249, blue: 178, alpha: 1.0};
 let yellow2 = {red: 245, green: 209, blue: 49, alpha: 1.0};
 let green = {red: 211, green: 248, blue: 226, alpha: 1.0};
 let green2 = {red: 158, green: 214, blue: 131, alpha: 1.0};
+let green3 = {red: 70, green: 140, blue: 82, alpha: 1.0};
 let blue = {red: 206, green: 229, blue: 242, alpha: 1.0};
 let blue2 = {red: 124, green: 146, blue: 252, alpha: 1.0};
+let blue3 = {red: 110, green: 116, blue: 160, alpha: 1.0};
 let orange = {red: 247, green: 202, blue: 178, alpha: 1.0};
 let pink = {red: 246, green: 207, blue: 230, alpha: 1.0};
 let red = {red: 238, green: 138, blue: 139, alpha: 1.0};
@@ -35,8 +37,10 @@ let colors = [
   yellow2,
   green,
   green2,
+  green3,
   blue,
   blue2,
+  blue3,
   orange,
   pink,
   red,
