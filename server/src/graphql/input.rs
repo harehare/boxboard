@@ -84,6 +84,7 @@ pub struct ArrowInput {
     pub color: String,
     pub arrow_type: String,
     pub angle: i32,
+    pub stroke_width: i32,
 }
 
 impl From<MarkdownInput> for BoxData {
@@ -186,6 +187,7 @@ impl From<ArrowInput> for BoxData {
             color: data.color,
             arrow_type: data.arrow_type,
             angle: data.angle,
+            stroke_width: data.stroke_width,
         })
     }
 }

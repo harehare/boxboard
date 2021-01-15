@@ -73,6 +73,7 @@ module BoardQuery = [%graphql
             color
             arrowType
             angle
+            strokeWidth
           }
         }
       }
@@ -439,10 +440,15 @@ module AddInput = {
   let toArrowInput = (box: Box.t): AddArrow.t_variables_ArrowInput => {
     let (x, y) = box.position;
     let (width, height) = box.size;
-    let (color, arrowType, angle) =
+    let (color, arrowType, angle, strokeWidth) =
       switch (box.kind) {
-      | Arrow(color, arrowType, angle) => (color, arrowType, angle)
-      | _ => (Color.black, ArrowType.Arrow, 0)
+      | Arrow(color, arrowType, angle, strokeWidth) => (
+          color,
+          arrowType,
+          angle,
+          strokeWidth,
+        )
+      | _ => (Color.black, ArrowType.Arrow, 0, 2)
       };
     AddArrow.makeInputObjectArrowInput(
       ~id=box.id,
@@ -455,6 +461,7 @@ module AddInput = {
       ~color=color->Color.toString,
       ~arrowType=arrowType->ArrowType.toString,
       ~angle,
+      ~strokeWidth,
       (),
     );
   };
@@ -603,10 +610,15 @@ module UpdateInput = {
   let toArrowInput = (box: Box.t): UpdateArrow.t_variables_ArrowInput => {
     let (x, y) = box.position;
     let (width, height) = box.size;
-    let (color, arrowType, angle) =
+    let (color, arrowType, angle, strokeWidth) =
       switch (box.kind) {
-      | Arrow(color, arrowType, angle) => (color, arrowType, angle)
-      | _ => (Color.black, ArrowType.Arrow, 0)
+      | Arrow(color, arrowType, angle, strokeWdith) => (
+          color,
+          arrowType,
+          angle,
+          strokeWdith,
+        )
+      | _ => (Color.black, ArrowType.Arrow, 0, 2)
       };
     UpdateArrow.makeInputObjectArrowInput(
       ~id=box.id,
@@ -619,6 +631,7 @@ module UpdateInput = {
       ~color=color->Color.toString,
       ~arrowType=arrowType->ArrowType.toString,
       ~angle,
+      ~strokeWidth,
       (),
     );
   };
@@ -767,10 +780,15 @@ module DeleteInput = {
   let toArrowInput = (box: Box.t): DeleteArrow.t_variables_ArrowInput => {
     let (x, y) = box.position;
     let (width, height) = box.size;
-    let (color, arrowType, angle) =
+    let (color, arrowType, angle, strokeWidth) =
       switch (box.kind) {
-      | Arrow(_, arrowType, angle) => (Color.black, arrowType, angle)
-      | _ => (Color.black, ArrowType.Arrow, 0)
+      | Arrow(_, arrowType, angle, strokeWidth) => (
+          Color.black,
+          arrowType,
+          angle,
+          strokeWidth,
+        )
+      | _ => (Color.black, ArrowType.Arrow, 0, 2)
       };
     DeleteArrow.makeInputObjectArrowInput(
       ~id=box.id,
@@ -783,6 +801,7 @@ module DeleteInput = {
       ~color=color->Color.toString,
       ~arrowType=arrowType->ArrowType.toString,
       ~angle,
+      ~strokeWidth,
       (),
     );
   };
@@ -890,6 +909,7 @@ let toBox = (src: BoardQuery.t_board_boxes): Box.t => {
           Color.fromString(arrow.color),
           arrow.arrowType->ArrowType.fromString,
           arrow.angle,
+          arrow.strokeWidth,
         ),
       status: Box.None,
       loading: false,

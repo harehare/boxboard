@@ -2,27 +2,9 @@ open AppStore;
 
 [%bs.raw {|require('./BoxSettings.scss')|}];
 
-let scaleUp = (v, scale: float) => int_of_float(float_of_int(v) *. scale);
-
 [@react.component]
-let make =
-    (
-      ~box: Box.t,
-      ~position,
-      ~scale: float,
-      ~onDelete: React.callback(Box.t, unit),
-    ) => {
+let make = (~box: Box.t, ~onDelete: React.callback(Box.t, unit)) => {
   let dispatch = useDispatch();
-  let (width, height) = box.size;
-  let (offsetX, offsetY) = position;
-  let (x, y) = box.position;
-  let (_, screenHeight) = Utils.screenSize();
-  let newX =
-    x->scaleUp(scale)
-    - (130 - int_of_float(float_of_int(width->scaleUp(scale)) /. 2.0))
-    + offsetX;
-  let newY = y->scaleUp(scale) + height->scaleUp(scale) + 64 + offsetY;
-  let newY = newY + 230 > screenHeight ? y->scaleUp(scale) - 64 : newY;
   let fixed = box.pinned ? "fixed" : "";
 
   let fontSizeChanged = e => {
@@ -33,23 +15,13 @@ let make =
     );
   };
 
-  let arrowTypeChanged = e => {
-    dispatch(
-      BoxAction(
-        ArrowTypeChanged(
-          ArrowType.fromString(ReactEvent.Form.target(e)##value),
-        ),
-      ),
-    );
-  };
-
   <div
     style={ReactDOMRe.Style.make(
       ~width="260px",
       ~transition="top 0.05s linear",
       ~position="fixed",
-      ~top={j|$(newY)px|j},
-      ~left={j|$(newX)px|j},
+      ~top="56px",
+      ~right="10px",
       (),
     )}>
     <div className="box-settings">
@@ -111,26 +83,61 @@ let make =
               )}
            </select>
          </div>
-       | Arrow(_, arrowType, _) =>
-         <div className="select">
-           <select
-             value={arrowType->ArrowType.toString}
-             key={arrowType->ArrowType.toString}
-             onChange=arrowTypeChanged>
-             <option value={ArrowType.None->ArrowType.toString}>
-               "None"->React.string
-             </option>
-             <option value={ArrowType.Arrow->ArrowType.toString}>
-               {0x2192->Js.String2.fromCharCode->React.string}
-             </option>
-           </select>
+       | Arrow(_, arrowType, _, strokeWidth) =>
+         <div
+           style={ReactDOMRe.Style.make(~display="flex", ~width="100%", ())}>
+           <div className="select">
+             <select
+               value={arrowType->ArrowType.toString}
+               key={arrowType->ArrowType.toString}
+               onChange={e => {
+                 dispatch(
+                   BoxAction(
+                     ArrowTypeChanged(
+                       ArrowType.fromString(
+                         ReactEvent.Form.target(e)##value,
+                       ),
+                     ),
+                   ),
+                 )
+               }}>
+               <option value={ArrowType.None->ArrowType.toString}>
+                 "None"->React.string
+               </option>
+               <option value={ArrowType.Arrow->ArrowType.toString}>
+                 {0x2192->Js.String2.fromCharCode->React.string}
+               </option>
+             </select>
+           </div>
+           <div className="select">
+             <select
+               value={j|$strokeWidth|j}
+               onChange={e => {
+                 dispatch(
+                   BoxAction(
+                     StrokeWidthChanged(int_of_string(ReactEvent.Form.target(e)##value)),
+                   ),
+                 )
+               }}>
+               {React.array(
+                  List.map(
+                    ((v, t)) =>
+                      <option key={j|$v|j} value={j|$v|j}>
+                        t->React.string
+                      </option>,
+                    StrokeWidth.strokeWidthList,
+                  )
+                  ->Array.of_list,
+                )}
+             </select>
+           </div>
          </div>
        | _ => <div />
        }}
       {switch (box.kind) {
        | Pen(_, draw, _, _) => <ColorPicker currentColor={draw.color} />
        | Square(color) => <ColorPicker currentColor=color />
-       | Arrow(color, _, _) => <ColorPicker currentColor=color />
+       | Arrow(color, _, _, _) => <ColorPicker currentColor=color />
        | Markdown(_, color, _) => <ColorPicker currentColor=color />
        | _ => <div />
        }}

@@ -195,7 +195,7 @@ let make = (~id) => {
       )}
     />
     {switch (boardAction) {
-     | Select(box) => <BoxSettings box position scale onDelete />
+     | Select(box) => <BoxSettings box onDelete />
      | _ => <div />
      }}
     <div className="toolbar">
@@ -272,7 +272,9 @@ let make = (~id) => {
         className={j|$arrowStyle button|j}
         onClick={_ =>
           dispatch(
-            BoardAction(Adding(Box.Arrow(Color.black, ArrowType.Arrow, 0))),
+            BoardAction(
+              Adding(Box.Arrow(Color.black, ArrowType.Arrow, 0, 2)),
+            ),
           )
         }>
         <Icon icon=Icon.faArrowRight className="fa-lg" />

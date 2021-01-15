@@ -25,6 +25,10 @@ type draw = {
 };
 [@decco]
 type fontSize = int;
+[@decco]
+type angle = int;
+[@decco]
+type strokeWidth = int;
 
 [@decco]
 type kind =
@@ -33,7 +37,7 @@ type kind =
   | Image(option(string))
   | Pen(list(position), draw, list(draw), isEdited)
   | Square(Color.t)
-  | Arrow(Color.t, ArrowType.t, int)
+  | Arrow(Color.t, ArrowType.t, angle, strokeWidth)
   | Error(string);
 
 [@decco]

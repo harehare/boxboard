@@ -20,7 +20,7 @@ type boardAction =
   | Init(string)
   | UpdateBoxId(string, string)
   | LoadingBoard
-  | LoadedBoard(string, list(Box.t), Box.position, isRemote)
+  | LoadedBoard(string, list(Box.t), float, Box.position, isRemote)
   | Error(error)
   | Cursor
   | Adding(Box.kind)
@@ -50,6 +50,7 @@ type boxAction =
   | ColorChanged(Color.t)
   | FontSizeChanged(int)
   | ArrowTypeChanged(ArrowType.t)
+  | StrokeWidthChanged(int)
   | LoadUrl(string)
   | LoadUrlComplete(Belt.Result.t(Box.page, string))
   | LoadFile(Box.kind, string)
@@ -121,7 +122,7 @@ let boardReduce = (state, boardAction) => {
       }
     )
   | LoadingBoard => {...state, data: RemoteData.Loading(BoxList.empty)}
-  | LoadedBoard(id, boxes, position, isRemote) =>
+  | LoadedBoard(id, boxes, scale, position, isRemote) =>
     let minOrder = boxes->minOrder;
     let maxOrder = boxes->maxOrder;
     {
@@ -135,6 +136,7 @@ let boardReduce = (state, boardAction) => {
         ),
       eventLog: boxes->Event.init,
       position,
+      scale,
       minOrder,
       maxOrder,
     };
@@ -551,7 +553,8 @@ let boxReduce = (state, action) => {
               | Pen(position, draw, drawList, _) =>
                 Pen(position, {...draw, color}, drawList, false)
               | Square(_) => Square(color)
-              | Arrow(_, arrowType, angle) => Arrow(color, arrowType, angle)
+              | Arrow(_, arrowType, angle, strokeWidth) =>
+                Arrow(color, arrowType, angle, strokeWidth)
               | Markdown(text, _, fontSize) =>
                 Markdown(text, color, fontSize)
               | _ => box.kind
@@ -573,10 +576,27 @@ let boxReduce = (state, action) => {
   | ArrowTypeChanged(arrowType) =>
     state->mapSelectBox(box => {
       switch (box.kind) {
-      | Arrow(color, _, angle) => {
+      | Arrow(color, _, angle, strokeWidth) => {
           ...state,
           boardAction:
-            Select({...box, kind: Arrow(color, arrowType, angle)}),
+            Select({
+              ...box,
+              kind: Arrow(color, arrowType, angle, strokeWidth),
+            }),
+        }
+      | _ => state
+      }
+    })
+  | StrokeWidthChanged(strokeWidth) =>
+    state->mapSelectBox(box => {
+      switch (box.kind) {
+      | Arrow(color, arrowType, angle, _) => {
+          ...state,
+          boardAction:
+            Select({
+              ...box,
+              kind: Arrow(color, arrowType, angle, strokeWidth),
+            }),
         }
       | _ => state
       }

@@ -60,6 +60,7 @@ select::-ms-expand {
     background: var(--main-color);
     overflow: hidden;
     border-radius: 0.25em;
+    margin: 8px;
 }
 select {
     flex: 1;

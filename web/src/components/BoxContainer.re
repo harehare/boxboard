@@ -206,12 +206,13 @@ let make =
            onUrlChange=onUrlEdit
            onLoadClick={onLoadClick(url)}
          />
-       | Arrow(color, arrowType, angle) =>
+       | Arrow(color, arrowType, angle, strokeWidth) =>
          <Arrow
            size=(foreignObjectWidth + 16, foreignObjectHeight)
            color
            arrowType
            angle
+           strokeWidth
          />
        | Error(msg) =>
          <Error msg size=(foreignObjectWidth, foreignObjectHeight) />

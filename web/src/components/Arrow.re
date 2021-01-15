@@ -2,7 +2,13 @@ open Box;
 
 [@react.component]
 let make =
-    (~size: position, ~color: Color.t, ~arrowType: ArrowType.t, ~angle: int) => {
+    (
+      ~size: position,
+      ~color: Color.t,
+      ~arrowType: ArrowType.t,
+      ~angle: int,
+      ~strokeWidth: int,
+    ) => {
   let (width, height) = size;
   let y = height / 2 + 16;
   <g transform={j|rotate($angle)|j}>
@@ -21,7 +27,7 @@ let make =
       y1={string_of_int(y)}
       x2={string_of_int(width)}
       y2={string_of_int(y)}
-      strokeWidth="2"
+      strokeWidth={j|$strokeWidth|j}
       markerEnd={
         switch (arrowType) {
         | ArrowType.Arrow => "url(#arrow)"

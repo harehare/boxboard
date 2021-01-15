@@ -1,71 +1,73 @@
 type Box {
-    _id: ID!
-    boardID: ID!
-    userID: ID!
-    x: Int!
-    y: Int!
-    width: Int!
-    height: Int!
-    order: Int!
-    angle: Int!
-    color: String
-    boxType: String!
-    pinned: Boolean!
-    text: String
-    fontSize: Int
-    url: String
-    imageUrl: String
-    title: String
-    description: String
-    # Pen
-    penColors: [String!]
-    penDraws: [String!]
-    # Arrow
-    arrowType: String
+  _id: ID!
+  boardID: ID!
+  userID: ID!
+  x: Int!
+  y: Int!
+  width: Int!
+  height: Int!
+  order: Int!
+  angle: Int!
+  color: String
+  boxType: String!
+  pinned: Boolean!
+  text: String
+  fontSize: Int
+  url: String
+  imageUrl: String
+  title: String
+  description: String
+  # Pen
+  penColors: [String!]
+  penDraws: [String!]
+  # Arrow
+  arrowType: String
+  strokeWidth: Int
 }
 
 type BoxPage {
-    data: [Box]!
-    after: String
-    before: String
+  data: [Box]!
+  after: String
+  before: String
 }
 
 input BoxInput {
-    boardID: ID!
-    userID: ID!
-    x: Int!
-    y: Int!
-    width: Int!
-    height: Int!
-    order: Int!
-    angle: Int!
-    boxType: String!
-    pinned: Boolean!
-    color: String
-    text: String
-    fontSize: Int
-    url: String
-    imageUrl: String
-    title: String
-    description: String
-    # Pen
-    penColors: [String!]
-    penDraws: [String!]
-    # Arrow
-    arrowType: String
+  boardID: ID!
+  userID: ID!
+  x: Int!
+  y: Int!
+  width: Int!
+  height: Int!
+  order: Int!
+  angle: Int!
+  boxType: String!
+  pinned: Boolean!
+  color: String
+  text: String
+  fontSize: Int
+  url: String
+  imageUrl: String
+  title: String
+  description: String
+  # Pen
+  penColors: [String!]
+  penDraws: [String!]
+  # Arrow
+  arrowType: String
+  strokeWidth: Int
 }
 
 type Query {
-    findBoxesInBoard(boardID: ID!, userID: ID!): BoxPage
+  findBoxesInBoard(boardID: ID!, userID: ID!): BoxPage
 }
 
 type Mutation {
-    createBox(data: BoxInput!): Box!
-    updateBox(id: ID!, data: BoxInput!): Box
-    deleteBox(id: ID!): Box
+  createBox(data: BoxInput!): Box!
+  updateBox(id: ID!, data: BoxInput!): Box
+  deleteBox(id: ID!): Box
 }
 
 schema {
-    query: Query
-    mutation: Mutation
+  query: Query
+  mutation: Mutation
 }

@@ -13,6 +13,7 @@ use std::convert::TryFrom;
 use std::sync::Arc;
 
 const DEFAULT_FONT_SIZE: i64 = 14;
+const DEFAULT_STROKE_WIDTH: i64 = 2;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -169,6 +170,10 @@ impl From<find_board::ResponseData> for Board {
                                     color: b.color.clone().unwrap_or("rgba(0,0,0,0.0)".to_string()),
                                     arrow_type: b.arrow_type.clone().unwrap_or("arrow".to_string()),
                                     angle: TryFrom::try_from(b.angle).unwrap(),
+                                    stroke_width: TryFrom::try_from(
+                                        b.stroke_width.unwrap_or(DEFAULT_STROKE_WIDTH),
+                                    )
+                                    .unwrap(),
                                 }),
                                 _ => BoxData::Square(Square {
                                     id: "".to_owned(),
@@ -260,6 +265,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: Some(markdown.color),
                     arrow_type: None,
                     angle: 0,
+                    stroke_width: None,
                 },
                 BoxData::WebPage(web_page) => BoxInput {
                     board_id: board_id.to_string(),
@@ -282,6 +288,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: None,
                     arrow_type: None,
                     angle: 0,
+                    stroke_width: None,
                 },
                 BoxData::Image(image) => BoxInput {
                     board_id: board_id.to_string(),
@@ -304,6 +311,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: None,
                     arrow_type: None,
                     angle: 0,
+                    stroke_width: None,
                 },
                 BoxData::Pen(pen) => BoxInput {
                     board_id: board_id.to_string(),
@@ -326,6 +334,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: None,
                     arrow_type: None,
                     angle: 0,
+                    stroke_width: None,
                 },
                 BoxData::Square(square) => BoxInput {
                     board_id: board_id.to_string(),
@@ -348,6 +357,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: Some(square.color),
                     arrow_type: None,
                     angle: 0,
+                    stroke_width: None,
                 },
                 BoxData::Arrow(arrow) => BoxInput {
                     board_id: board_id.to_string(),
@@ -370,6 +380,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: Some(arrow.color),
                     arrow_type: Some(arrow.arrow_type),
                     angle: 0,
+                    stroke_width: Some(TryFrom::try_from(arrow.stroke_width).unwrap()),
                 },
             },
         });
@@ -427,6 +438,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: Some(markdown.color),
                     arrow_type: None,
                     angle: 0,
+                    stroke_width: None,
                 },
                 BoxData::WebPage(web_page) => BoxInput {
                     board_id: board_id.to_string(),
@@ -449,6 +461,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: None,
                     arrow_type: None,
                     angle: 0,
+                    stroke_width: None,
                 },
                 BoxData::Image(image) => BoxInput {
                     board_id: board_id.to_string(),
@@ -471,6 +484,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: None,
                     arrow_type: None,
                     angle: 0,
+                    stroke_width: None,
                 },
                 BoxData::Pen(pen) => BoxInput {
                     board_id: board_id.to_string(),
@@ -493,6 +507,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: None,
                     arrow_type: None,
                     angle: 0,
+                    stroke_width: None,
                 },
                 BoxData::Square(square) => BoxInput {
                     board_id: board_id.to_string(),
@@ -515,6 +530,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: Some(square.color),
                     arrow_type: None,
                     angle: 0,
+                    stroke_width: None,
                 },
                 BoxData::Arrow(arrow) => BoxInput {
                     board_id: board_id.to_string(),
@@ -537,6 +553,7 @@ impl repository::BoardRepository for BoardRepository {
                     color: Some(arrow.color),
                     arrow_type: Some(arrow.arrow_type),
                     angle: TryFrom::try_from(arrow.angle).unwrap(),
+                    stroke_width: Some(TryFrom::try_from(arrow.stroke_width).unwrap()),
                 },
             },
         });

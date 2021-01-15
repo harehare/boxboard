@@ -83,6 +83,7 @@ pub struct Arrow {
     pub color: String,
     pub arrow_type: String,
     pub angle: i32,
+    pub stroke_width: i32,
 }
 
 #[derive(Clone, Debug, juniper::GraphQLUnion)]

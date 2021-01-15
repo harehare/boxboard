@@ -70,7 +70,7 @@ let useQuery = (boardId: string): queryResult => {
                   | Ok(boxes) =>
                     dispatch(
                       BoardAction(
-                        LoadedBoard(boardId, boxes, (0, 0), true),
+                        LoadedBoard(boardId, boxes, 1.0, (0, 0), true),
                       ),
                     );
                     setState(_ => {error: None, loading: false});
@@ -86,7 +86,9 @@ let useQuery = (boardId: string): queryResult => {
         } else {
           switch (localBoardValue) {
           | None =>
-            dispatch(BoardAction(LoadedBoard(boardId, [], (0, 0), false)))
+            dispatch(
+              BoardAction(LoadedBoard(boardId, [], 1.0, (0, 0), false)),
+            )
           | Some(j) =>
             let result = Js.Json.parseExn(j) |> Box.boxData_decode;
 
@@ -94,12 +96,12 @@ let useQuery = (boardId: string): queryResult => {
             | Ok(v) =>
               dispatch(
                 BoardAction(
-                  LoadedBoard(boardId, v.boxes, v.position, false),
+                  LoadedBoard(boardId, v.boxes, v.scale, v.position, false),
                 ),
               )
             | Error(_) =>
               dispatch(
-                BoardAction(LoadedBoard(boardId, [], (0, 0), false)),
+                BoardAction(LoadedBoard(boardId, [], 1.0, (0, 0), false)),
               )
             };
           };

@@ -1,44 +1,45 @@
 query findBoard($id: ID!, $userID: ID!) {
-    findBoxesInBoard(boardID: $id, userID: $userID) {
-        data {
-            _id
-            boardID
-            x
-            y
-            width
-            height
-            order
-            boxType
-            pinned
-            text
-            fontSize
-            url
-            penColors
-            penDraws
-            imageUrl
-            title
-            description
-            color
-            arrowType
-            angle
-        }
+  findBoxesInBoard(boardID: $id, userID: $userID) {
+    data {
+      _id
+      boardID
+      x
+      y
+      width
+      height
+      order
+      boxType
+      pinned
+      text
+      fontSize
+      url
+      penColors
+      penDraws
+      imageUrl
+      title
+      description
+      color
+      arrowType
+      angle
+      strokeWidth
     }
+  }
 }
 
 mutation createBox($data: BoxInput!) {
-    createBox(data: $data) {
-        _id
-    }
+  createBox(data: $data) {
+    _id
+  }
 }
 
 mutation updateBox($id: ID!, $data: BoxInput!) {
-    updateBox(id: $id, data: $data) {
-        _id
-    }
+  updateBox(id: $id, data: $data) {
+    _id
+  }
 }
 
 mutation deleteBox($id: ID!) {
-    deleteBox(id: $id) {
-        _id
-    }
+  deleteBox(id: $id) {
+    _id
+  }
 }
