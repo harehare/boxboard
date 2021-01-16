@@ -184,6 +184,7 @@ let make = (~id) => {
       show={queryLoading || mutationLoading || RemoteData.isLoading(data)}
     />
     <Header />
+    <Title />
     <Menu
       boxList
       position

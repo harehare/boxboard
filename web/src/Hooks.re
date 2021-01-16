@@ -64,13 +64,13 @@ let useQuery = (boardId: string): queryResult => {
                 Dom.Storage.sessionStorage,
               )
               |> ignore;
-              Request.findBoard(boardId)
+              Request.findBoxesInBoard(boardId)
               ->Utils.Promise.then_(result => {
                   switch (result) {
                   | Ok(boxes) =>
                     dispatch(
                       BoardAction(
-                        LoadedBoard(boardId, boxes, 1.0, (0, 0), true),
+                        LoadedBoard(boardId, None, boxes, 1.0, (0, 0), true),
                       ),
                     );
                     setState(_ => {error: None, loading: false});
@@ -87,7 +87,9 @@ let useQuery = (boardId: string): queryResult => {
           switch (localBoardValue) {
           | None =>
             dispatch(
-              BoardAction(LoadedBoard(boardId, [], 1.0, (0, 0), false)),
+              BoardAction(
+                LoadedBoard(boardId, None, [], 1.0, (0, 0), false),
+              ),
             )
           | Some(j) =>
             let result = Js.Json.parseExn(j) |> Box.boxData_decode;
@@ -96,12 +98,21 @@ let useQuery = (boardId: string): queryResult => {
             | Ok(v) =>
               dispatch(
                 BoardAction(
-                  LoadedBoard(boardId, v.boxes, v.scale, v.position, false),
+                  LoadedBoard(
+                    boardId,
+                    v.title,
+                    v.boxes,
+                    v.scale,
+                    v.position,
+                    false,
+                  ),
                 ),
               )
             | Error(_) =>
               dispatch(
-                BoardAction(LoadedBoard(boardId, [], 1.0, (0, 0), false)),
+                BoardAction(
+                  LoadedBoard(boardId, None, [], 1.0, (0, 0), false),
+                ),
               )
             };
           };

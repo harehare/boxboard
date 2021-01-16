@@ -18,9 +18,17 @@ type fileType = {
 
 type boardAction =
   | Init(string)
+  | EditTitle(string)
   | UpdateBoxId(string, string)
   | LoadingBoard
-  | LoadedBoard(string, list(Box.t), float, Box.position, isRemote)
+  | LoadedBoard(
+      string,
+      option(string),
+      list(Box.t),
+      float,
+      Box.position,
+      isRemote,
+    )
   | Error(error)
   | Cursor
   | Adding(Box.kind)
@@ -64,6 +72,7 @@ type appAction =
 
 type appState = {
   id: string,
+  title: option(string),
   isDragStart: bool,
   isRemote,
   boardAction,
@@ -106,6 +115,7 @@ let newState = state => {
 let boardReduce = (state, boardAction) => {
   switch (boardAction) {
   | Init(id) => {...state, id}
+  | EditTitle(title) => {...state, title: title == "" ? None : Some(title)}
   | UpdateBoxId(oldId, newId) =>
     state->mapSelectBox(box =>
       {
@@ -122,12 +132,13 @@ let boardReduce = (state, boardAction) => {
       }
     )
   | LoadingBoard => {...state, data: RemoteData.Loading(BoxList.empty)}
-  | LoadedBoard(id, boxes, scale, position, isRemote) =>
+  | LoadedBoard(id, title, boxes, scale, position, isRemote) =>
     let minOrder = boxes->minOrder;
     let maxOrder = boxes->maxOrder;
     {
       ...state,
       id,
+      title,
       isRemote,
       data:
         RemoteData.map(
@@ -646,6 +657,7 @@ let thunk = (store, next, action) => {
           s.id,
           {
             id: s.id,
+            title: s.title,
             boxes: boxes->BoxList.update(box.id, _ => box)->BoxList.toList,
             position: s.position,
             scale: s.scale,
@@ -656,6 +668,7 @@ let thunk = (store, next, action) => {
           s.id,
           {
             id: s.id,
+            title: s.title,
             boxes: boxes->BoxList.toList,
             position: s.position,
             scale: s.scale,
@@ -740,6 +753,7 @@ let appStore =
     ~reducer=appReducer,
     ~preloadedState={
       id: "",
+      title: None,
       isDragStart: false,
       isRemote: false,
       boardAction: Cursor,

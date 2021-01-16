@@ -1,6 +1,6 @@
 open GraphQL;
 
-let findBoard = id =>
+let findBoxesInBoard = id =>
   Client.instance.query(~query=(module BoardQuery), {id: id})
   ->Utils.Promise.then_(result => {
       Js.Promise.resolve(

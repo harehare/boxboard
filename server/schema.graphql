@@ -25,6 +25,15 @@ type Box {
   strokeWidth: Int
 }
 
+type Board {
+  x: Int!
+  y: Int!
+  scale: Float!
+  _id: ID!
+  boardID: ID!
+  _ts: Long!
+}
+
 type BoxPage {
   data: [Box]!
   after: String
@@ -57,6 +66,13 @@ input BoxInput {
   strokeWidth: Int
 }
 
+input BoardInput {
+  boardID: ID!
+  x: Int!
+  y: Int!
+  scale: Float!
+}
+
 type Query {
   findBoxesInBoard(boardID: ID!, userID: ID!): BoxPage
 }
@@ -65,6 +81,9 @@ type Mutation {
   createBox(data: BoxInput!): Box!
   updateBox(id: ID!, data: BoxInput!): Box
   deleteBox(id: ID!): Box
+  createBoard(data: BoardInput!): Board!
+  updateBoard(id: ID!, data: BoardInput!): Board
+  deleteBoard(id: ID!): Board
 }
 
 schema {

@@ -22,7 +22,7 @@ const DEFAULT_STROKE_WIDTH: i64 = 2;
     response_derives = "Debug",
     normalization = "rust"
 )]
-struct FindBoard;
+struct FindBoxesInBoard;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -72,8 +72,8 @@ impl BoardRepository {
     }
 }
 
-impl From<find_board::ResponseData> for Board {
-    fn from(data: find_board::ResponseData) -> Self {
+impl From<find_boxes_in_board::ResponseData> for Board {
+    fn from(data: find_boxes_in_board::ResponseData) -> Self {
         match data.find_boxes_in_board {
             Some(item) => Board {
                 // TODO:
@@ -211,11 +211,11 @@ impl From<find_board::ResponseData> for Board {
 #[async_trait]
 impl repository::BoardRepository for BoardRepository {
     async fn find(&self, id: BoardId, user_id: UserId) -> Result<Board> {
-        let q = FindBoard::build_query(find_board::Variables {
+        let q = FindBoxesInBoard::build_query(find_boxes_in_board::Variables {
             id: id.to_string(),
             user_id: user_id.to_string(),
         });
-        let res: Response<find_board::ResponseData> = self
+        let res: Response<find_boxes_in_board::ResponseData> = self
             .client
             .post(&self.graphql_endpoint)
             .header("Authorization", format!("Bearer {}", self.bearer_token))

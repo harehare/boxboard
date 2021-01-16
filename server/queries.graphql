@@ -1,4 +1,4 @@
-query findBoard($id: ID!, $userID: ID!) {
+query findBoxesInBoard($id: ID!, $userID: ID!) {
   findBoxesInBoard(boardID: $id, userID: $userID) {
     data {
       _id
@@ -26,6 +26,15 @@ query findBoard($id: ID!, $userID: ID!) {
   }
 }
 
+# query findBoard($id: ID!, $userID: ID!) {
+#   findBoard(boardID: $id, userID: $userID) {
+#     boardID
+#     x
+#     y
+#     scale
+#   }
+# }
+
 mutation createBox($data: BoxInput!) {
   createBox(data: $data) {
     _id
@@ -43,3 +52,21 @@ mutation deleteBox($id: ID!) {
     _id
   }
 }
+
+# mutation createBoard($data: BoardInput!) {
+#   createBoard(data: $data) {
+#     _id
+#   }
+# }
+
+# mutation updateBoard($data: BoardInput!) {
+#   updateBoard(data: $data) {
+#     _id
+#   }
+# }
+
+# mutation deleteBoard($data: BoardInput!) {
+#   deleteBoard(data: $data) {
+#     _id
+#   }
+# }

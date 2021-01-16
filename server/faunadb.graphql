@@ -24,6 +24,13 @@ type Box {
   strokeWidth: Int
 }
 
+type Board {
+  boardID: ID!
+  x: Int!
+  y: Int!
+  scale: Float!
+}
+
 input BoxInput {
   boardID: ID!
   userID: ID!
@@ -48,6 +55,13 @@ input BoxInput {
   # Arrow
   arrowType: String
   strokeWidth: Int
+}
+
+input BoardInput {
+  boardID: ID!
+  x: Int!
+  y: Int!
+  scale: Float!
 }
 
 type Query {

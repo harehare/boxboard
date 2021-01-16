@@ -101,6 +101,7 @@ let empty = {
 [@decco]
 type boxData = {
   id: string,
+  title: option(string),
   boxes: list(t),
   position,
   scale: float,
