@@ -1,7 +1,6 @@
 open Env;
 [@bs.val] external encodeURIComponent: string => string = "encodeURIComponent";
 
-type isRemote = bool;
 type error = string;
 
 type remoteData = RemoteData.t(BoxList.t, BoxList.t, error);
@@ -20,15 +19,9 @@ type boardAction =
   | Init(string)
   | EditTitle(string)
   | UpdateBoxId(string, string)
+  | UpdateBoardId(string)
   | LoadingBoard
-  | LoadedBoard(
-      string,
-      option(string),
-      list(Box.t),
-      float,
-      Box.position,
-      isRemote,
-    )
+  | LoadedBoard(Request.boardResponse)
   | Error(error)
   | Cursor
   | Adding(Box.kind)
@@ -71,10 +64,10 @@ type appAction =
   | BoxAction(boxAction);
 
 type appState = {
-  id: string,
+  boardId: string,
+  remoteId: option(string),
   title: option(string),
   isDragStart: bool,
-  isRemote,
   boardAction,
   data: remoteData,
   position: Box.position,
@@ -114,8 +107,9 @@ let newState = state => {
 
 let boardReduce = (state, boardAction) => {
   switch (boardAction) {
-  | Init(id) => {...state, id}
+  | Init(boardId) => {...state, boardId}
   | EditTitle(title) => {...state, title: title == "" ? None : Some(title)}
+  | UpdateBoardId(remoteId) => {...state, remoteId: Some(remoteId)}
   | UpdateBoxId(oldId, newId) =>
     state->mapSelectBox(box =>
       {
@@ -132,14 +126,14 @@ let boardReduce = (state, boardAction) => {
       }
     )
   | LoadingBoard => {...state, data: RemoteData.Loading(BoxList.empty)}
-  | LoadedBoard(id, title, boxes, scale, position, isRemote) =>
+  | LoadedBoard({remoteId, boardId, title, boxes, scale, position}) =>
     let minOrder = boxes->minOrder;
     let maxOrder = boxes->maxOrder;
     {
       ...state,
-      id,
+      boardId,
+      remoteId,
       title,
-      isRemote,
       data:
         RemoteData.map(
           base => BoxList.merge(base, boxes->BoxList.fromList),
@@ -620,6 +614,7 @@ let boxReduce = (state, action) => {
     let cloneBox = {
       ...Box.newBox(~kind=box.kind, ()),
       position: (100, 100),
+      size: box.size
     };
     {
       ...state,
@@ -654,9 +649,9 @@ let thunk = (store, next, action) => {
       switch (s.boardAction) {
       | Select(box) =>
         saveBoard(
-          s.id,
+          s.boardId,
           {
-            id: s.id,
+            id: s.boardId,
             title: s.title,
             boxes: boxes->BoxList.update(box.id, _ => box)->BoxList.toList,
             position: s.position,
@@ -665,9 +660,9 @@ let thunk = (store, next, action) => {
         )
       | _ =>
         saveBoard(
-          s.id,
+          s.boardId,
           {
-            id: s.id,
+            id: s.boardId,
             title: s.title,
             boxes: boxes->BoxList.toList,
             position: s.position,
@@ -752,10 +747,10 @@ let appStore =
   Reductive.Store.create(
     ~reducer=appReducer,
     ~preloadedState={
-      id: "",
+      boardId: "",
+      remoteId: None,
       title: None,
       isDragStart: false,
-      isRemote: false,
       boardAction: Cursor,
       data: RemoteData.succeed(BoxList.empty),
       position: (0, 0),

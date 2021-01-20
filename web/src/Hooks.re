@@ -29,6 +29,9 @@ type requestState = {
 };
 
 type mutation =
+  | AddBoard(Request.boardData)
+  | UpdateBoard(Request.boardData)
+  | DeleteBoard(Request.boardData)
   | Add(Box.t)
   | Update(Box.t)
   | Delete(Box.t);
@@ -42,87 +45,6 @@ type mutationResult = {
 type queryResult = {
   error: option(Err.t),
   loading: bool,
-};
-
-let useQuery = (boardId: string): queryResult => {
-  let dispatch = AppStore.useDispatch();
-  let (state, setState) =
-    React.useState(_ => ({error: None, loading: false}: requestState));
-
-  let (localBoardValue, _) = useLocalStorage(boardId);
-  let {isAuthenticated, getIdTokenClaims} = Auth0.useAuth0();
-
-  React.useEffect2(
-    () => {
-      let _ =
-        if (isAuthenticated) {
-          getIdTokenClaims()
-          ->Utils.Promise.then_(token => {
-              Dom.Storage.setItem(
-                Constants.sessionToken,
-                token.__raw,
-                Dom.Storage.sessionStorage,
-              )
-              |> ignore;
-              Request.findBoxesInBoard(boardId)
-              ->Utils.Promise.then_(result => {
-                  switch (result) {
-                  | Ok(boxes) =>
-                    dispatch(
-                      BoardAction(
-                        LoadedBoard(boardId, None, boxes, 1.0, (0, 0), true),
-                      ),
-                    );
-                    setState(_ => {error: None, loading: false});
-                    Js.Promise.resolve();
-                  | Error(err) =>
-                    setState(_ => {error: Some(err), loading: false});
-                    Js.Promise.resolve();
-                  }
-                })
-              ->Utils.Promise.ignore;
-              Js.Promise.resolve();
-            });
-        } else {
-          switch (localBoardValue) {
-          | None =>
-            dispatch(
-              BoardAction(
-                LoadedBoard(boardId, None, [], 1.0, (0, 0), false),
-              ),
-            )
-          | Some(j) =>
-            let result = Js.Json.parseExn(j) |> Box.boxData_decode;
-
-            switch (result) {
-            | Ok(v) =>
-              dispatch(
-                BoardAction(
-                  LoadedBoard(
-                    boardId,
-                    v.title,
-                    v.boxes,
-                    v.scale,
-                    v.position,
-                    false,
-                  ),
-                ),
-              )
-            | Error(_) =>
-              dispatch(
-                BoardAction(
-                  LoadedBoard(boardId, None, [], 1.0, (0, 0), false),
-                ),
-              )
-            };
-          };
-          Js.Promise.resolve();
-        };
-      None;
-    },
-    (dispatch, isAuthenticated),
-  );
-  {error: state.error, loading: state.loading};
 };
 
 let useMutation = (boardId: string): mutationResult => {
@@ -164,6 +86,9 @@ let useMutation = (boardId: string): mutationResult => {
         | Arrow(_) => Request.deleteArrow(box.id, box)
         | _ => Request.deleteSquare(box.id, box)
         }
+      | AddBoard(boardData) => Request.addBoard(boardData)
+      | UpdateBoard(boardData) => Request.updateBoard(boardData)
+      | DeleteBoard(boardData) => Request.deleteBoard(boardData)
       };
 
     let boxId =
@@ -171,19 +96,37 @@ let useMutation = (boardId: string): mutationResult => {
       | Add(box) => box.id
       | Update(box) => box.id
       | Delete(box) => box.id
+      | _ => ""
       };
 
     result
     ->Utils.Promise.then_(result => {
         switch (result) {
-        | Ok(newId) when boxId != newId =>
-          dispatch(BoardAction(UpdateBoxId(boxId, newId)));
-          setState(_ => {error: None, loading: false});
+        | Ok(newId) =>
+          switch (m) {
+          | Add(_) =>
+            dispatch(BoardAction(UpdateBoxId(boxId, newId)));
+            setState(_ => {error: None, loading: false});
+          | Update(_) =>
+            dispatch(BoardAction(UpdateBoxId(boxId, newId)));
+            setState(_ => {error: None, loading: false});
+          | Delete(_) =>
+            dispatch(BoardAction(UpdateBoxId(boxId, newId)));
+            setState(_ => {error: None, loading: false});
+          | AddBoard(_) =>
+            dispatch(BoardAction(UpdateBoardId(newId)));
+            setState(_ => {error: None, loading: false});
+          | UpdateBoard(_) =>
+            dispatch(BoardAction(UpdateBoardId(newId)));
+            setState(_ => {error: None, loading: false});
+          | DeleteBoard(_) =>
+            dispatch(BoardAction(UpdateBoardId(newId)));
+            setState(_ => {error: None, loading: false});
+          }
         | Error(err) =>
           setState(_ =>
             {error: Some(Err.fromApolloError(err)), loading: false}
           )
-        | _ => setState(_ => {error: None, loading: false})
         };
         Js.Promise.resolve();
       })
@@ -191,4 +134,114 @@ let useMutation = (boardId: string): mutationResult => {
   };
 
   {error: state.error, loading: state.loading, mutation: m};
+};
+
+let useQuery = (boardId: string): queryResult => {
+  let dispatch = AppStore.useDispatch();
+  let (state, setState) =
+    React.useState(_ => ({error: None, loading: false}: requestState));
+
+  let (localBoardValue, _) = useLocalStorage(boardId);
+  let {isAuthenticated, getIdTokenClaims} = Auth0.useAuth0();
+  let {error, loading, mutation} = useMutation(boardId);
+
+  React.useEffect2(
+    () => {
+      let _ =
+        if (isAuthenticated) {
+          getIdTokenClaims()
+          ->Utils.Promise.then_(token => {
+              Dom.Storage.setItem(
+                Constants.sessionToken,
+                token.__raw,
+                Dom.Storage.sessionStorage,
+              )
+              |> ignore;
+              Request.findBoard(boardId)
+              ->Utils.Promise.then_(result => {
+                  switch (result) {
+                  | Ok(res)
+                      when
+                        switch (res.remoteId) {
+                        | Some(_) => true
+                        | None => false
+                        } =>
+                    dispatch(BoardAction(LoadedBoard(res)));
+                    setState(_ => {error: None, loading: false});
+                    Js.Promise.resolve();
+                  | Ok(res) =>
+                    dispatch(BoardAction(LoadedBoard(res)));
+                    mutation(
+                      AddBoard({
+                        remoteId: None,
+                        boardId,
+                        title: None,
+                        position: (0, 0),
+                        scale: 1.0,
+                      }),
+                    );
+                    setState(_ => {error: None, loading: false});
+                    Js.Promise.resolve();
+                  | Error(err) =>
+                    setState(_ => {error: Some(err), loading: false});
+                    Js.Promise.resolve();
+                  }
+                })
+              ->Utils.Promise.ignore;
+              Js.Promise.resolve();
+            });
+        } else {
+          switch (localBoardValue) {
+          | None =>
+            dispatch(
+              BoardAction(
+                LoadedBoard({
+                  remoteId: None,
+                  boardId,
+                  title: None,
+                  boxes: [],
+                  scale: 1.0,
+                  position: (0, 0),
+                }),
+              ),
+            )
+          | Some(j) =>
+            let result = Js.Json.parseExn(j) |> Box.boxData_decode;
+
+            switch (result) {
+            | Ok(v) =>
+              dispatch(
+                BoardAction(
+                  LoadedBoard({
+                    remoteId: None,
+                    boardId,
+                    title: v.title,
+                    boxes: v.boxes,
+                    scale: v.scale,
+                    position: v.position,
+                  }),
+                ),
+              )
+            | Error(_) =>
+              dispatch(
+                BoardAction(
+                  LoadedBoard({
+                    remoteId: None,
+                    boardId,
+                    title: None,
+                    boxes: [],
+                    scale: 1.0,
+                    position: (0, 0),
+                  }),
+                ),
+              )
+            };
+          };
+          Js.Promise.resolve();
+        };
+      None;
+    },
+    (dispatch, isAuthenticated),
+  );
+  {error: state.error, loading: state.loading};
 };

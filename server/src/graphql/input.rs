@@ -87,6 +87,15 @@ pub struct ArrowInput {
     pub stroke_width: i32,
 }
 
+#[derive(juniper::GraphQLInputObject)]
+pub struct BoardInput {
+    pub board_id: String,
+    pub title: String,
+    pub x: i32,
+    pub y: i32,
+    pub scale: f64,
+}
+
 impl From<MarkdownInput> for BoxData {
     fn from(data: MarkdownInput) -> Self {
         BoxData::Markdown(Markdown {

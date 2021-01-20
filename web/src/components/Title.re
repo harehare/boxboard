@@ -4,7 +4,7 @@ open AppStore;
 let titleSelector = state => state.title;
 
 [@react.component]
-let make = () => {
+let make = (~onSaveBoard: React.callback(string, unit)) => {
   let dispatch = useDispatch();
   let value = useSelector(titleSelector);
   <div className="title">
@@ -17,6 +17,7 @@ let make = () => {
         let value = ReactEvent.Form.target(e)##value;
         dispatch(BoardAction(EditTitle(value)));
       }}
+      onBlur={_ => onSaveBoard(value->Belt.Option.getWithDefault(""))}
     />
   </div>;
 };

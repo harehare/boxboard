@@ -97,8 +97,18 @@ pub enum BoxData {
 }
 
 #[derive(Clone, Debug, juniper::GraphQLObject)]
-pub struct Board {
+pub struct BoardData {
     pub id: String,
+    pub board_id: String,
+    pub title: String,
+    pub x: i32,
+    pub y: i32,
+    pub scale: f64,
+}
+
+#[derive(Clone, Debug, juniper::GraphQLObject)]
+pub struct Board {
+    pub board: BoardData,
     pub boxes: Vec<BoxData>,
 }
 

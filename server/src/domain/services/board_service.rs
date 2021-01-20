@@ -1,4 +1,6 @@
-use crate::domain::board::model::{Arrow, Board, BoxData, Image, Markdown, Pen, Square, WebPage};
+use crate::domain::board::model::{
+    Arrow, Board, BoardData, BoxData, Image, Markdown, Pen, Square, WebPage,
+};
 use crate::domain::board::repository::BoardRepository as BoardRepositoryTrait;
 use crate::domain::values::board_id::BoardId;
 use crate::domain::values::box_id::BoxId;
@@ -18,6 +20,18 @@ impl BoardService {
 
     pub async fn get_board(&self, board_id: BoardId, user_id: UserId) -> Result<Board> {
         self.board_repository.find(board_id, user_id).await
+    }
+
+    pub async fn add_board(&self, input: BoardData) -> Result<String> {
+        self.board_repository.add_board(input).await
+    }
+
+    pub async fn update_board(&self, board_id: BoardId, input: BoardData) -> Result<()> {
+        self.board_repository.update_board(board_id, input).await
+    }
+
+    pub async fn delete_board(&self, board_id: BoardId) -> Result<()> {
+        self.board_repository.delete_board(board_id).await
     }
 
     pub async fn add_box(

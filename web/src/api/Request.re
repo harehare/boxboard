@@ -1,16 +1,106 @@
 open GraphQL;
 
-let findBoxesInBoard = id =>
+type boardResponse = {
+  remoteId: option(string),
+  boardId: string,
+  title: option(string),
+  position: Box.position,
+  scale: float,
+  boxes: list(Box.t),
+};
+
+type boardData = {
+  remoteId: option(string),
+  boardId: string,
+  title: option(string),
+  position: Box.position,
+  scale: float,
+};
+
+let findBoard = id =>
   Client.instance.query(~query=(module BoardQuery), {id: id})
   ->Utils.Promise.then_(result => {
       Js.Promise.resolve(
         switch (result) {
         | Ok({data: {board}}) =>
-          Ok(Array.map(toBox, board.boxes)->Array.to_list)
+          Ok({
+            remoteId: board.board.id == "" ? None : Some(board.board.id),
+            boardId: board.board.boardId,
+            title: Some(board.board.title),
+            position: (board.board.x, board.board.y),
+            scale: board.board.scale,
+            boxes: Array.map(toBox, board.boxes)->Array.to_list,
+          })
         | Error(error) => Error(Err.fromApolloError(error))
         },
       )
     });
+
+let addBoard = boardData => {
+  let (x, y) = boardData.position;
+  Client.instance.mutate(
+    ~mutation=(module AddBoard),
+    {
+      id: boardData.boardId,
+      input:
+        AddBoard.makeInputObjectBoardInput(
+          ~boardId=boardData.boardId,
+          ~title=boardData.title->Belt.Option.getWithDefault(""),
+          ~x,
+          ~y,
+          ~scale=boardData.scale,
+          (),
+        ),
+    },
+  )
+  ->Utils.Promise.then_(result => {
+      result->Belt.Result.map(r => r.data.board.id)->Js.Promise.resolve
+    });
+};
+
+let updateBoard = boardData => {
+  let (x, y) = boardData.position;
+  Client.instance.mutate(
+    ~mutation=(module UpdateBoard),
+    {
+      id: boardData.remoteId->Belt.Option.getWithDefault(""),
+      input:
+        UpdateBoard.makeInputObjectBoardInput(
+          ~boardId=boardData.boardId,
+          ~title=boardData.title->Belt.Option.getWithDefault(""),
+          ~x,
+          ~y,
+          ~scale=boardData.scale,
+          (),
+        ),
+    },
+  )
+  ->Utils.Promise.then_(result => {
+      result->Belt.Result.map(r => r.data.board.id)->Js.Promise.resolve
+    });
+};
+
+let deleteBoard = boardData => {
+  let (x, y) = boardData.position;
+  Client.instance.mutate(
+    ~mutation=(module DeleteBoard),
+    {
+      id: boardData.remoteId->Belt.Option.getWithDefault(""),
+      input:
+        DeleteBoard.makeInputObjectBoardInput(
+          ~boardId=boardData.boardId,
+          ~title=boardData.title->Belt.Option.getWithDefault(""),
+          ~x,
+          ~y,
+          ~scale=boardData.scale,
+          (),
+        ),
+    },
+  )
+  ->Utils.Promise.then_(result => {
+      result->Belt.Result.map(r => r.data.board.id)->Js.Promise.resolve
+    });
+};
 
 let addMarkdown = (boardId: string, box: Box.t) =>
   Client.instance.mutate(

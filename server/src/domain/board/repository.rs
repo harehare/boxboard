@@ -1,4 +1,4 @@
-use crate::domain::board::model::{Board, BoxData};
+use crate::domain::board::model::{Board, BoardData, BoxData};
 use crate::domain::values::board_id::BoardId;
 use crate::domain::values::box_id::BoxId;
 use crate::domain::values::user_id::UserId;
@@ -23,4 +23,7 @@ pub trait BoardRepository {
         box_data: BoxData,
     ) -> Result<()>;
     async fn delete_box(&self, board_id: BoxId, user_id: UserId) -> Result<()>;
+    async fn add_board(&self, board: BoardData) -> Result<String>;
+    async fn update_board(&self, board_id: BoardId, board: BoardData) -> Result<()>;
+    async fn delete_board(&self, board_id: BoardId) -> Result<()>;
 }

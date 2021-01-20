@@ -2,7 +2,14 @@ module BoardQuery = [%graphql
   {|
     query BoardQuery($id: String!) {
       board: board(id: $id) {
-        id
+        board {
+          id
+          boardId
+          title
+          x
+          y
+          scale
+        }
         boxes {
           ... on Markdown {
             id
@@ -76,6 +83,36 @@ module BoardQuery = [%graphql
             strokeWidth
           }
         }
+      }
+    }
+  |}
+];
+
+module AddBoard = [%graphql
+  {|
+    mutation addBoard($id: ID!, $input: BoardInput!) {
+      board: addBoard(boardId: $id, input: $input) {
+          id
+      }
+    }
+  |}
+];
+
+module UpdateBoard = [%graphql
+  {|
+    mutation updateBoard($id: ID!, $input: BoardInput!) {
+      board: updateBoard(boardId: $id, input: $input) {
+          id
+      }
+    }
+  |}
+];
+
+module DeleteBoard = [%graphql
+  {|
+    mutation deleteBoard($id: ID!, $input: BoardInput!) {
+      board: deleteBoard(boardId: $id, input: $input) {
+          id
       }
     }
   |}

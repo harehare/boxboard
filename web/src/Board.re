@@ -8,6 +8,7 @@ let dataSelector = state => state.data;
 let positionSelector = state => state.position;
 let scaleSelector = state => state.scale;
 let searchQuerySelector = state => state.searchQuery;
+let remoteIdSelector = state => state.remoteId;
 
 [@react.component]
 let make = (~id) => {
@@ -17,6 +18,7 @@ let make = (~id) => {
   let position = useSelector(positionSelector);
   let scale = useSelector(scaleSelector);
   let searchQuery = useSelector(searchQuerySelector);
+  let remoteId = useSelector(remoteIdSelector);
   let (width, height) = Utils.screenSize();
   let (x, y) = position;
   let {isAuthenticated} = Auth0.useAuth0();
@@ -34,6 +36,34 @@ let make = (~id) => {
       box =>
         if (isAuthenticated) {
           mutation(Update(box));
+        },
+      [|isAuthenticated|],
+    );
+  let onSaveBoard =
+    React.useCallback1(
+      title =>
+        switch (remoteId, isAuthenticated) {
+        | (Some(remoteId), true) =>
+          mutation(
+            UpdateBoard({
+              remoteId: Some(remoteId),
+              boardId: id,
+              title: Some(title),
+              position,
+              scale,
+            }),
+          )
+        | (None, true) =>
+          mutation(
+            AddBoard({
+              remoteId: None,
+              boardId: id,
+              title: Some(title),
+              position,
+              scale,
+            }),
+          )
+        | _ => ()
         },
       [|isAuthenticated|],
     );
@@ -184,7 +214,7 @@ let make = (~id) => {
       show={queryLoading || mutationLoading || RemoteData.isLoading(data)}
     />
     <Header />
-    <Title />
+    <Title onSaveBoard />
     <Menu
       boxList
       position

@@ -1,10 +1,10 @@
-use crate::domain::board::model::BoxData;
+use crate::domain::board::model::{BoardData, BoxData};
 use crate::domain::values::board_id::BoardId;
 use crate::domain::values::box_id::BoxId;
 use crate::domain::values::user_id::UserId;
 use crate::graphql::context::Context;
 use crate::graphql::input::{
-    ArrowInput, ImageInput, MarkdownInput, PenInput, SquareInput, WebPageInput,
+    ArrowInput, BoardInput, ImageInput, MarkdownInput, PenInput, SquareInput, WebPageInput,
 };
 use juniper;
 
@@ -60,6 +60,79 @@ async fn delete_box(
 
 #[juniper::graphql_object(Context = Context)]
 impl MutationRoot {
+    async fn add_board(
+        ctx: &Context,
+        board_id: juniper::ID,
+        input: BoardInput,
+    ) -> juniper::FieldResult<BoardData> {
+        let board_data = BoardData {
+            id: board_id.to_string(),
+            board_id: board_id.to_string(),
+            title: input.title,
+            x: input.x,
+            y: input.y,
+            scale: input.scale,
+        };
+        let res = ctx.board_service.add_board(board_data.clone()).await;
+        // TODO:
+
+        res.map(|id| BoardData {
+            id: id,
+            ..board_data
+        })
+        .map_err(|e| juniper::FieldError::from(e))
+    }
+
+    async fn update_board(
+        ctx: &Context,
+        board_id: juniper::ID,
+        input: BoardInput,
+    ) -> juniper::FieldResult<BoardData> {
+        let board_data = BoardData {
+            id: board_id.to_string(),
+            board_id: board_id.to_string(),
+            title: input.title,
+            x: input.x,
+            y: input.y,
+            scale: input.scale,
+        };
+        let res = ctx
+            .board_service
+            .update_board(BoardId::new(board_id.to_string()), board_data.clone())
+            .await;
+
+        res.map(|_| BoardData {
+            id: board_id.to_string(),
+            ..board_data
+        })
+        .map_err(|e| juniper::FieldError::from(e))
+    }
+
+    async fn delete_board(
+        ctx: &Context,
+        board_id: juniper::ID,
+        input: BoardInput,
+    ) -> juniper::FieldResult<BoardData> {
+        let board_data = BoardData {
+            id: board_id.to_string(),
+            board_id: board_id.to_string(),
+            title: input.title,
+            x: input.x,
+            y: input.y,
+            scale: input.scale,
+        };
+        let res = ctx
+            .board_service
+            .delete_board(BoardId::new(board_id.to_string()))
+            .await;
+
+        res.map(|_| BoardData {
+            id: board_id.to_string(),
+            ..board_data
+        })
+        .map_err(|e| juniper::FieldError::from(e))
+    }
+
     async fn add_markdown(
         ctx: &Context,
         board_id: juniper::ID,

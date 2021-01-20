@@ -26,6 +26,7 @@ type Box {
 
 type Board {
   boardID: ID!
+  title: String
   x: Int!
   y: Int!
   scale: Float!
@@ -59,6 +60,7 @@ input BoxInput {
 
 input BoardInput {
   boardID: ID!
+  title: String
   x: Int!
   y: Int!
   scale: Float!
@@ -66,4 +68,5 @@ input BoardInput {
 
 type Query {
   findBoxesInBoard(boardID: ID!, userID: ID!): [Box]
+  findBoard(boardID: ID!): Board
 }

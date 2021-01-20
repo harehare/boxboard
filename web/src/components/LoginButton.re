@@ -2,7 +2,7 @@ open AppStore;
 
 [%bs.raw {|require('./LoginButton.scss')|}];
 let window = [%bs.raw "window"];
-let idSelector = state => state.id;
+let idSelector = state => state.boardId;
 
 [@react.component]
 let make = () => {

@@ -1,5 +1,5 @@
 use crate::domain::board::model::{
-    Arrow, Board, BoxData, Image, Markdown, Pen, PenDraw, Square, WebPage,
+    Arrow, Board, BoardData, BoxData, Image, Markdown, Pen, PenDraw, Square, WebPage,
 };
 use crate::domain::board::repository;
 use crate::domain::values::board_id::BoardId;
@@ -22,7 +22,34 @@ const DEFAULT_STROKE_WIDTH: i64 = 2;
     response_derives = "Debug",
     normalization = "rust"
 )]
-struct FindBoxesInBoard;
+struct FindBoard;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "schema.graphql",
+    query_path = "queries.graphql",
+    response_derives = "Debug",
+    normalization = "rust"
+)]
+struct CreateBoard;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "schema.graphql",
+    query_path = "queries.graphql",
+    response_derives = "Debug",
+    normalization = "rust"
+)]
+struct UpdateBoard;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "schema.graphql",
+    query_path = "queries.graphql",
+    response_derives = "Debug",
+    normalization = "rust"
+)]
+struct DeleteBoard;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -72,16 +99,18 @@ impl BoardRepository {
     }
 }
 
-impl From<find_boxes_in_board::ResponseData> for Board {
-    fn from(data: find_boxes_in_board::ResponseData) -> Self {
-        match data.find_boxes_in_board {
-            Some(item) => Board {
-                // TODO:
-                id: item
-                    .data
-                    .first()
-                    .and_then(|v| v.as_ref().and_then(|vv| Some(vv.board_id.clone())))
-                    .unwrap_or("".to_owned()),
+impl From<find_board::ResponseData> for Board {
+    fn from(data: find_board::ResponseData) -> Self {
+        match (data.find_board, data.find_boxes_in_board) {
+            (Some(board), Some(item)) => Board {
+                board: BoardData {
+                    id: board.id,
+                    board_id: board.board_id,
+                    title: board.title.clone().unwrap_or("".to_string()),
+                    x: TryFrom::try_from(board.x).unwrap(),
+                    y: TryFrom::try_from(board.y).unwrap(),
+                    scale: board.scale,
+                },
                 boxes: item
                     .data
                     .iter()
@@ -200,8 +229,15 @@ impl From<find_boxes_in_board::ResponseData> for Board {
                     })
                     .collect(),
             },
-            None => Board {
-                id: "".to_owned(),
+            _ => Board {
+                board: BoardData {
+                    id: "".to_string(),
+                    board_id: "".to_string(),
+                    title: "".to_string(),
+                    x: 0,
+                    y: 0,
+                    scale: 0.0,
+                },
                 boxes: vec![],
             },
         }
@@ -211,11 +247,11 @@ impl From<find_boxes_in_board::ResponseData> for Board {
 #[async_trait]
 impl repository::BoardRepository for BoardRepository {
     async fn find(&self, id: BoardId, user_id: UserId) -> Result<Board> {
-        let q = FindBoxesInBoard::build_query(find_boxes_in_board::Variables {
+        let q = FindBoard::build_query(find_board::Variables {
             id: id.to_string(),
             user_id: user_id.to_string(),
         });
-        let res: Response<find_boxes_in_board::ResponseData> = self
+        let res: Response<find_board::ResponseData> = self
             .client
             .post(&self.graphql_endpoint)
             .header("Authorization", format!("Bearer {}", self.bearer_token))
@@ -226,6 +262,100 @@ impl repository::BoardRepository for BoardRepository {
             .await?;
         match (res.data, res.errors) {
             (Some(data), _) => Ok(Board::from(data)),
+            (None, Some(errors)) => Err(anyhow!(errors
+                .iter()
+                .map(|e| e.message.to_string())
+                .collect::<Vec<_>>()
+                .join(","))),
+            _ => Err(anyhow!(Error::Unknown)),
+        }
+    }
+
+    async fn add_board(&self, board: BoardData) -> Result<String> {
+        use create_board::*;
+        let body = CreateBoard::build_query(Variables {
+            data: BoardInput {
+                board_id: board.board_id,
+                title: Some(board.title),
+                x: TryFrom::try_from(board.x).unwrap(),
+                y: TryFrom::try_from(board.y).unwrap(),
+                scale: board.scale,
+            },
+        });
+
+        let res: Response<ResponseData> = self
+            .client
+            .post(&self.graphql_endpoint)
+            .header("Authorization", format!("Bearer {}", self.bearer_token))
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        match (res.data, res.errors) {
+            (Some(data), None) => Ok(data.create_board.id),
+            (None, Some(errors)) => Err(anyhow!(errors
+                .iter()
+                .map(|e| e.message.to_string())
+                .collect::<Vec<_>>()
+                .join(","))),
+            _ => Err(anyhow!(Error::Unknown)),
+        }
+    }
+
+    async fn update_board(&self, board_id: BoardId, board: BoardData) -> Result<()> {
+        use update_board::*;
+        let body = UpdateBoard::build_query(Variables {
+            id: board_id.to_string(),
+            data: BoardInput {
+                board_id: board.board_id,
+                title: Some(board.title),
+                x: TryFrom::try_from(board.x).unwrap(),
+                y: TryFrom::try_from(board.y).unwrap(),
+                scale: board.scale,
+            },
+        });
+
+        let res: Response<ResponseData> = self
+            .client
+            .post(&self.graphql_endpoint)
+            .header("Authorization", format!("Bearer {}", self.bearer_token))
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        match (res.data, res.errors) {
+            (Some(_num), _) => Ok(()),
+            (None, Some(errors)) => Err(anyhow!(errors
+                .iter()
+                .map(|e| e.message.to_string())
+                .collect::<Vec<_>>()
+                .join(","))),
+            _ => Err(anyhow!(Error::Unknown)),
+        }
+    }
+
+    async fn delete_board(&self, board_id: BoardId) -> Result<()> {
+        use delete_board::*;
+        let body = DeleteBoard::build_query(Variables {
+            id: board_id.to_string(),
+        });
+
+        // TODO: check user
+        let res: Response<ResponseData> = self
+            .client
+            .post(&self.graphql_endpoint)
+            .header("Authorization", format!("Bearer {}", self.bearer_token))
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+        match (res.data, res.errors) {
+            (Some(_num), None) => Ok(()),
             (None, Some(errors)) => Err(anyhow!(errors
                 .iter()
                 .map(|e| e.message.to_string())
