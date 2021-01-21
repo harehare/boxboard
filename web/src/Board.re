@@ -45,7 +45,7 @@ let make = (~id) => {
         switch (remoteId, isAuthenticated) {
         | (Some(remoteId), true) =>
           mutation(
-            UpdateBoard({
+            SaveBoard({
               remoteId: Some(remoteId),
               boardId: id,
               title: Some(title),
@@ -55,7 +55,7 @@ let make = (~id) => {
           )
         | (None, true) =>
           mutation(
-            AddBoard({
+            SaveBoard({
               remoteId: None,
               boardId: id,
               title: Some(title),
@@ -535,6 +535,7 @@ let make = (~id) => {
                                   <BoxContainer
                                     key={box.id}
                                     box
+                                    scale
                                     isSelected
                                     updateBox
                                   />;
@@ -551,6 +552,7 @@ let make = (~id) => {
                                   <g key={box.id}>
                                     <BoxContainer
                                       box
+                                      scale
                                       isSelected=false
                                       updateBox
                                     />

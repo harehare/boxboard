@@ -60,7 +60,7 @@ async fn delete_box(
 
 #[juniper::graphql_object(Context = Context)]
 impl MutationRoot {
-    async fn add_board(
+    async fn save_board(
         ctx: &Context,
         board_id: juniper::ID,
         input: BoardInput,
@@ -73,39 +73,10 @@ impl MutationRoot {
             y: input.y,
             scale: input.scale,
         };
-        let res = ctx.board_service.add_board(board_data.clone()).await;
-        // TODO:
+        let res = ctx.board_service.save_board(board_data.clone()).await;
 
-        res.map(|id| BoardData {
-            id: id,
-            ..board_data
-        })
-        .map_err(|e| juniper::FieldError::from(e))
-    }
-
-    async fn update_board(
-        ctx: &Context,
-        board_id: juniper::ID,
-        input: BoardInput,
-    ) -> juniper::FieldResult<BoardData> {
-        let board_data = BoardData {
-            id: board_id.to_string(),
-            board_id: board_id.to_string(),
-            title: input.title,
-            x: input.x,
-            y: input.y,
-            scale: input.scale,
-        };
-        let res = ctx
-            .board_service
-            .update_board(BoardId::new(board_id.to_string()), board_data.clone())
-            .await;
-
-        res.map(|_| BoardData {
-            id: board_id.to_string(),
-            ..board_data
-        })
-        .map_err(|e| juniper::FieldError::from(e))
+        res.map(|_| board_data)
+            .map_err(|e| juniper::FieldError::from(e))
     }
 
     async fn delete_board(

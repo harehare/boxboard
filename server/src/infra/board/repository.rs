@@ -31,6 +31,15 @@ struct FindBoard;
     response_derives = "Debug",
     normalization = "rust"
 )]
+struct FindBoardId;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "schema.graphql",
+    query_path = "queries.graphql",
+    response_derives = "Debug",
+    normalization = "rust"
+)]
 struct CreateBoard;
 
 #[derive(GraphQLQuery)]
@@ -236,7 +245,7 @@ impl From<find_board::ResponseData> for Board {
                     title: "".to_string(),
                     x: 0,
                     y: 0,
-                    scale: 0.0,
+                    scale: 1.0,
                 },
                 boxes: vec![],
             },
@@ -246,6 +255,33 @@ impl From<find_board::ResponseData> for Board {
 
 #[async_trait]
 impl repository::BoardRepository for BoardRepository {
+    async fn get_board_id(&self, id: BoardId) -> Result<String> {
+        use find_board_id::*;
+
+        let q = FindBoardId::build_query(Variables { id: id.to_string() });
+        let res: Response<ResponseData> = self
+            .client
+            .post(&self.graphql_endpoint)
+            .header("Authorization", format!("Bearer {}", self.bearer_token))
+            .json(&q)
+            .send()
+            .await?
+            .json()
+            .await?;
+        match (res.data, res.errors) {
+            (Some(data), _) => match data.find_board {
+                Some(v) => Ok(v.id),
+                None => Err(anyhow!(Error::NotFound)),
+            },
+            (None, Some(errors)) => Err(anyhow!(errors
+                .iter()
+                .map(|e| e.message.to_string())
+                .collect::<Vec<_>>()
+                .join(","))),
+            _ => Err(anyhow!(Error::Unknown)),
+        }
+    }
+
     async fn find(&self, id: BoardId, user_id: UserId) -> Result<Board> {
         let q = FindBoard::build_query(find_board::Variables {
             id: id.to_string(),
@@ -271,7 +307,7 @@ impl repository::BoardRepository for BoardRepository {
         }
     }
 
-    async fn add_board(&self, board: BoardData) -> Result<String> {
+    async fn add_board(&self, board: BoardData) -> Result<()> {
         use create_board::*;
         let body = CreateBoard::build_query(Variables {
             data: BoardInput {
@@ -294,7 +330,7 @@ impl repository::BoardRepository for BoardRepository {
             .await?;
 
         match (res.data, res.errors) {
-            (Some(data), None) => Ok(data.create_board.id),
+            (Some(_), None) => Ok(()),
             (None, Some(errors)) => Err(anyhow!(errors
                 .iter()
                 .map(|e| e.message.to_string())

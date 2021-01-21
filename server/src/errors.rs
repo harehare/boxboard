@@ -20,6 +20,9 @@ pub enum Error {
     #[error("user is not unauthorized")]
     UnauthorizedError,
 
+    #[error("not found error")]
+    NotFound,
+
     #[error("unknown error")]
     Unknown,
 }

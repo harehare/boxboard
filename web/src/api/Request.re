@@ -36,36 +36,14 @@ let findBoard = id =>
       )
     });
 
-let addBoard = boardData => {
+let saveBoard = boardData => {
   let (x, y) = boardData.position;
   Client.instance.mutate(
-    ~mutation=(module AddBoard),
+    ~mutation=(module SaveBoard),
     {
       id: boardData.boardId,
       input:
-        AddBoard.makeInputObjectBoardInput(
-          ~boardId=boardData.boardId,
-          ~title=boardData.title->Belt.Option.getWithDefault(""),
-          ~x,
-          ~y,
-          ~scale=boardData.scale,
-          (),
-        ),
-    },
-  )
-  ->Utils.Promise.then_(result => {
-      result->Belt.Result.map(r => r.data.board.id)->Js.Promise.resolve
-    });
-};
-
-let updateBoard = boardData => {
-  let (x, y) = boardData.position;
-  Client.instance.mutate(
-    ~mutation=(module UpdateBoard),
-    {
-      id: boardData.remoteId->Belt.Option.getWithDefault(""),
-      input:
-        UpdateBoard.makeInputObjectBoardInput(
+        SaveBoard.makeInputObjectBoardInput(
           ~boardId=boardData.boardId,
           ~title=boardData.title->Belt.Option.getWithDefault(""),
           ~x,

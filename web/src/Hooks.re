@@ -29,8 +29,7 @@ type requestState = {
 };
 
 type mutation =
-  | AddBoard(Request.boardData)
-  | UpdateBoard(Request.boardData)
+  | SaveBoard(Request.boardData)
   | DeleteBoard(Request.boardData)
   | Add(Box.t)
   | Update(Box.t)
@@ -86,8 +85,7 @@ let useMutation = (boardId: string): mutationResult => {
         | Arrow(_) => Request.deleteArrow(box.id, box)
         | _ => Request.deleteSquare(box.id, box)
         }
-      | AddBoard(boardData) => Request.addBoard(boardData)
-      | UpdateBoard(boardData) => Request.updateBoard(boardData)
+      | SaveBoard(boardData) => Request.saveBoard(boardData)
       | DeleteBoard(boardData) => Request.deleteBoard(boardData)
       };
 
@@ -113,15 +111,7 @@ let useMutation = (boardId: string): mutationResult => {
           | Delete(_) =>
             dispatch(BoardAction(UpdateBoxId(boxId, newId)));
             setState(_ => {error: None, loading: false});
-          | AddBoard(_) =>
-            dispatch(BoardAction(UpdateBoardId(newId)));
-            setState(_ => {error: None, loading: false});
-          | UpdateBoard(_) =>
-            dispatch(BoardAction(UpdateBoardId(newId)));
-            setState(_ => {error: None, loading: false});
-          | DeleteBoard(_) =>
-            dispatch(BoardAction(UpdateBoardId(newId)));
-            setState(_ => {error: None, loading: false});
+          | _ => setState(_ => {error: None, loading: false})
           }
         | Error(err) =>
           setState(_ =>
@@ -172,7 +162,7 @@ let useQuery = (boardId: string): queryResult => {
                   | Ok(res) =>
                     dispatch(BoardAction(LoadedBoard(res)));
                     mutation(
-                      AddBoard({
+                      SaveBoard({
                         remoteId: None,
                         boardId,
                         title: None,

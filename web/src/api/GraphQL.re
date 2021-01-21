@@ -88,20 +88,10 @@ module BoardQuery = [%graphql
   |}
 ];
 
-module AddBoard = [%graphql
+module SaveBoard = [%graphql
   {|
-    mutation addBoard($id: ID!, $input: BoardInput!) {
-      board: addBoard(boardId: $id, input: $input) {
-          id
-      }
-    }
-  |}
-];
-
-module UpdateBoard = [%graphql
-  {|
-    mutation updateBoard($id: ID!, $input: BoardInput!) {
-      board: updateBoard(boardId: $id, input: $input) {
+    mutation saveBoard($id: ID!, $input: BoardInput!) {
+      board: saveBoard(boardId: $id, input: $input) {
           id
       }
     }

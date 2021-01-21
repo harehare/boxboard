@@ -22,12 +22,20 @@ impl BoardService {
         self.board_repository.find(board_id, user_id).await
     }
 
-    pub async fn add_board(&self, input: BoardData) -> Result<String> {
-        self.board_repository.add_board(input).await
-    }
+    pub async fn save_board(&self, input: BoardData) -> Result<()> {
+        let board_id = self
+            .board_repository
+            .get_board_id(BoardId::new(input.board_id.clone()))
+            .await;
 
-    pub async fn update_board(&self, board_id: BoardId, input: BoardData) -> Result<()> {
-        self.board_repository.update_board(board_id, input).await
+        match board_id {
+            Ok(id) => {
+                self.board_repository
+                    .update_board(BoardId::new(id), input)
+                    .await
+            }
+            _ => self.board_repository.add_board(input).await,
+        }
     }
 
     pub async fn delete_board(&self, board_id: BoardId) -> Result<()> {

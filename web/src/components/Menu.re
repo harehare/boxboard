@@ -55,7 +55,17 @@ let make = (~boxList: list(Box.t), ~position, ~onDownload: unit => unit) => {
   <div className="menu">
     <Map boxList position scale visible=visibleMap />
     <div className="menu-button enabled-button">
-      <a href="/" target="_blank" rel="noopener noreferrer">
+      <a
+        href="/"
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={_ => {
+          Dom.Storage.setItem(
+            Constants.sessionPageId,
+            "",
+            Dom.Storage.sessionStorage,
+          )
+        }}>
         <Icon icon=Icon.faPlusCircle className="icon" />
         <span className="tooltip">
           <span className="text"> "New"->React.string </span>
