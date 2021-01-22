@@ -3,10 +3,16 @@ open AppStore;
 
 [@react.component]
 let make =
-    (~box: Box.t, ~isSelected, ~updateBox: React.callback(Box.t, unit)) => {
+    (
+      ~box: Box.t,
+      ~isSelected,
+      ~scale: float,
+      ~updateBox: React.callback(Box.t, unit),
+    ) => {
   let dispatch = useDispatch();
   let (width, height) = box.size;
   let (x, y) = box.position;
+  let pointSize = (10.0 /. scale)->int_of_float;
 
   let mouseDown = (e: ReactEvent.Mouse.t) =>
     if (isSelected) {
@@ -42,12 +48,11 @@ let make =
   let boxBorderColor = isSelected ? "#48A9DD" : "transparent";
   let fillColor =
     switch (box.kind) {
-    | Square(color) => Color.toString(color)
     | Markdown(_, color, _) => Color.toString(color)
     | _ => "transparent"
     };
-  let svgWidth = width + 20 < 260 ? 260 : width + 20;
-  let svgHeight = height + 180;
+  let svgWidth = width + 20 + pointSize < 260 ? 260 : width + 20 + pointSize;
+  let svgHeight = height + 180 + pointSize;
   let foreignObjectWidth = width - 16;
   let foreignObjectHeight = height - 16;
 
@@ -100,8 +105,8 @@ let make =
              <rect
                x="1"
                y="1"
-               width="10"
-               height="10"
+               width={pointSize->string_of_int}
+               height={pointSize->string_of_int}
                fill="#48a9dd"
                rx="30"
                ry="30"
@@ -118,8 +123,8 @@ let make =
              <rect
                x={string_of_int(width)}
                y="1"
-               width="10"
-               height="10"
+               width={pointSize->string_of_int}
+               height={pointSize->string_of_int}
                fill="#48a9dd"
                rx="30"
                ry="30"
@@ -136,8 +141,8 @@ let make =
              <rect
                x="1"
                y={string_of_int(height)}
-               width="10"
-               height="10"
+               width={pointSize->string_of_int}
+               height={pointSize->string_of_int}
                fill="#48a9dd"
                rx="30"
                ry="30"
@@ -154,8 +159,8 @@ let make =
              <rect
                x={string_of_int(width)}
                y={string_of_int(height)}
-               width="10"
-               height="10"
+               width={pointSize->string_of_int}
+               height={pointSize->string_of_int}
                fill="#48a9dd"
                rx="30"
                ry="30"
@@ -172,7 +177,6 @@ let make =
            </g>
          : <g />}
       {switch (box.kind) {
-       | Square(_) => <g />
        | Pen(_, draw, drawList, _) => <Pen width height draw drawList />
        | Markdown(text, _, fontSize) =>
          <Markdown

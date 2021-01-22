@@ -18,9 +18,6 @@ external faMousePointer: icon = "faMousePointer";
 external faPen: icon = "faPen";
 
 [@bs.module "@fortawesome/free-solid-svg-icons"]
-external faSquare: icon = "faSquare";
-
-[@bs.module "@fortawesome/free-solid-svg-icons"]
 external faStickyNote: icon = "faStickyNote";
 
 [@bs.module "@fortawesome/free-solid-svg-icons"]
@@ -70,7 +67,6 @@ external faMap: icon = "faMap";
 
 libraryAdd(faMousePointer);
 libraryAdd(faPen);
-libraryAdd(faSquare);
 libraryAdd(faStickyNote);
 libraryAdd(faImage);
 libraryAdd(faGlobe);

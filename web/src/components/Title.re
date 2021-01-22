@@ -18,6 +18,7 @@ let make = (~onSaveBoard: React.callback(string, unit)) => {
         dispatch(BoardAction(EditTitle(value)));
       }}
       onBlur={_ => onSaveBoard(value->Belt.Option.getWithDefault(""))}
+      onFocus={e => ReactEvent.Focus.target(e)##select()}
     />
   </div>;
 };

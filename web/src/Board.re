@@ -111,11 +111,6 @@ let make = (~id) => {
     | Adding(Pen(_)) => "selected"
     | _ => ""
     };
-  let squareStyle =
-    switch (boardAction) {
-    | Adding(Square(_)) => "selected"
-    | _ => ""
-    };
   let markdownStyle =
     switch (boardAction) {
     | Adding(Markdown(_)) => "selected"
@@ -257,16 +252,6 @@ let make = (~id) => {
         <Icon icon=Icon.faPen className="fa-lg" />
         <span className="tooltip">
           <span className="text"> "Pen"->React.string </span>
-        </span>
-      </div>
-      <div
-        className={j|$squareStyle button|j}
-        onClick={_ =>
-          dispatch(BoardAction(Adding(Box.Square(Color.yellow))))
-        }>
-        <Icon icon=Icon.faSquare className="fa-lg" />
-        <span className="tooltip">
-          <span className="text"> "Square"->React.string </span>
         </span>
       </div>
       <div

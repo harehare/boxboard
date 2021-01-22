@@ -61,9 +61,8 @@ let useMutation = (boardId: string): mutationResult => {
         | Web(_, _) => Request.addWebPage(boardId, box)
         | Image(_) => Request.addImage(boardId, box)
         | Pen(_, _, _, _) => Request.addPen(boardId, box)
-        | Square(_) => Request.addSquare(boardId, box)
         | Arrow(_) => Request.addArrow(boardId, box)
-        | _ => Request.addSquare(boardId, box)
+        | _ => Request.addMarkdown(boardId, box)
         }
       | Update(box) =>
         switch (box.kind) {
@@ -71,9 +70,8 @@ let useMutation = (boardId: string): mutationResult => {
         | Web(_, _) => Request.updateWebPage(boardId, box)
         | Image(_) => Request.updateImage(boardId, box)
         | Pen(_, _, _, _) => Request.updatePen(boardId, box)
-        | Square(_) => Request.updateSquare(boardId, box)
         | Arrow(_) => Request.updateArrow(boardId, box)
-        | _ => Request.updateSquare(boardId, box)
+        | _ => Request.updateMarkdown(boardId, box)
         }
       | Delete(box) =>
         switch (box.kind) {
@@ -81,9 +79,8 @@ let useMutation = (boardId: string): mutationResult => {
         | Web(_, _) => Request.deleteWebPage(box.id, box)
         | Image(_) => Request.deleteImage(box.id, box)
         | Pen(_, _, _, _) => Request.deletePen(box.id, box)
-        | Square(_) => Request.deleteSquare(box.id, box)
         | Arrow(_) => Request.deleteArrow(box.id, box)
-        | _ => Request.deleteSquare(box.id, box)
+        | _ => Request.deleteMarkdown(box.id, box)
         }
       | SaveBoard(boardData) => Request.saveBoard(boardData)
       | DeleteBoard(boardData) => Request.deleteBoard(boardData)

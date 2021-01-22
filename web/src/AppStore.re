@@ -557,7 +557,6 @@ let boxReduce = (state, action) => {
               switch (box.kind) {
               | Pen(position, draw, drawList, _) =>
                 Pen(position, {...draw, color}, drawList, false)
-              | Square(_) => Square(color)
               | Arrow(_, arrowType, angle, strokeWidth) =>
                 Arrow(color, arrowType, angle, strokeWidth)
               | Markdown(text, _, fontSize) =>
@@ -614,7 +613,7 @@ let boxReduce = (state, action) => {
     let cloneBox = {
       ...Box.newBox(~kind=box.kind, ()),
       position: (100, 100),
-      size: box.size
+      size: box.size,
     };
     {
       ...state,

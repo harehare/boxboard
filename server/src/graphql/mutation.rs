@@ -4,7 +4,7 @@ use crate::domain::values::box_id::BoxId;
 use crate::domain::values::user_id::UserId;
 use crate::graphql::context::Context;
 use crate::graphql::input::{
-    ArrowInput, BoardInput, ImageInput, MarkdownInput, PenInput, SquareInput, WebPageInput,
+    ArrowInput, BoardInput, ImageInput, MarkdownInput, PenInput, WebPageInput,
 };
 use juniper;
 
@@ -136,14 +136,6 @@ impl MutationRoot {
         add_box(ctx, board_id, BoxData::from(input)).await
     }
 
-    async fn add_square(
-        ctx: &Context,
-        board_id: juniper::ID,
-        input: SquareInput,
-    ) -> juniper::FieldResult<BoxData> {
-        add_box(ctx, board_id, BoxData::from(input)).await
-    }
-
     async fn add_arrow(
         ctx: &Context,
         board_id: juniper::ID,
@@ -188,15 +180,6 @@ impl MutationRoot {
         update_box(ctx, board_id, box_id, BoxData::from(input)).await
     }
 
-    async fn update_square(
-        ctx: &Context,
-        board_id: juniper::ID,
-        box_id: juniper::ID,
-        input: SquareInput,
-    ) -> juniper::FieldResult<BoxData> {
-        update_box(ctx, board_id, box_id, BoxData::from(input)).await
-    }
-
     async fn update_arrow(
         ctx: &Context,
         board_id: juniper::ID,
@@ -234,14 +217,6 @@ impl MutationRoot {
         ctx: &Context,
         box_id: juniper::ID,
         input: PenInput,
-    ) -> juniper::FieldResult<BoxData> {
-        delete_box(ctx, box_id, BoxData::from(input)).await
-    }
-
-    async fn delete_square(
-        ctx: &Context,
-        box_id: juniper::ID,
-        input: SquareInput,
     ) -> juniper::FieldResult<BoxData> {
         delete_box(ctx, box_id, BoxData::from(input)).await
     }

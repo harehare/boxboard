@@ -1,4 +1,4 @@
-use crate::domain::board::model::{Arrow, BoxData, Image, Markdown, Pen, PenDraw, Square, WebPage};
+use crate::domain::board::model::{Arrow, BoxData, Image, Markdown, Pen, PenDraw, WebPage};
 use juniper;
 
 #[derive(juniper::GraphQLInputObject)]
@@ -58,18 +58,6 @@ pub struct PenInput {
 pub struct PenDrawInput {
     draw: String,
     color: String,
-}
-
-#[derive(juniper::GraphQLInputObject)]
-pub struct SquareInput {
-    pub id: String,
-    pub x: i32,
-    pub y: i32,
-    pub width: i32,
-    pub height: i32,
-    pub order: i32,
-    pub pinned: bool,
-    pub color: String,
 }
 
 #[derive(juniper::GraphQLInputObject)]
@@ -164,21 +152,6 @@ impl From<PenInput> for BoxData {
                     draw: d.draw.clone(),
                 })
                 .collect(),
-        })
-    }
-}
-
-impl From<SquareInput> for BoxData {
-    fn from(data: SquareInput) -> Self {
-        BoxData::Square(Square {
-            id: data.id,
-            x: data.x,
-            y: data.y,
-            width: data.width,
-            height: data.height,
-            order: data.order,
-            pinned: data.pinned,
-            color: data.color,
         })
     }
 }

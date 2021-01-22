@@ -144,22 +144,6 @@ let addPen = (boardId: string, box: Box.t) =>
       ->Js.Promise.resolve
     );
 
-let addSquare = (boardId: string, box: Box.t) =>
-  Client.instance.mutate(
-    ~mutation=(module AddSquare),
-    {boardId, input: AddInput.toSquareInput(box)},
-  )
-  ->Utils.Promise.then_(result =>
-      result
-      ->Belt.Result.map(r => {
-          switch (r.data.board) {
-          | `Square(square) => square.id
-          | _ => ""
-          }
-        })
-      ->Js.Promise.resolve
-    );
-
 let addArrow = (boardId: string, box: Box.t) =>
   Client.instance.mutate(
     ~mutation=(module AddArrow),
@@ -212,15 +196,6 @@ let updatePen = (boardId: string, box: Box.t) =>
       result->Belt.Result.map(_ => box.id)->Js.Promise.resolve
     );
 
-let updateSquare = (boardId: string, box: Box.t) =>
-  Client.instance.mutate(
-    ~mutation=(module UpdateSquare),
-    {boardId, boxId: box.id, input: UpdateInput.toSquareInput(box)},
-  )
-  ->Utils.Promise.then_(result =>
-      result->Belt.Result.map(_ => box.id)->Js.Promise.resolve
-    );
-
 let updateArrow = (boardId: string, box: Box.t) =>
   Client.instance.mutate(
     ~mutation=(module UpdateArrow),
@@ -261,15 +236,6 @@ let deletePen = (boxId: string, box: Box.t) =>
   Client.instance.mutate(
     ~mutation=(module DeletePen),
     {boxId, input: DeleteInput.toPenInput(box)},
-  )
-  ->Utils.Promise.then_(result =>
-      result->Belt.Result.map(_ => box.id)->Js.Promise.resolve
-    );
-
-let deleteSquare = (boxId: string, box: Box.t) =>
-  Client.instance.mutate(
-    ~mutation=(module DeleteSquare),
-    {boxId, input: DeleteInput.toSquareInput(box)},
   )
   ->Utils.Promise.then_(result =>
       result->Belt.Result.map(_ => box.id)->Js.Promise.resolve

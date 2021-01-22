@@ -1,5 +1,5 @@
 use crate::domain::board::model::{
-    Arrow, Board, BoardData, BoxData, Image, Markdown, Pen, Square, WebPage,
+    Arrow, Board, BoardData, BoxData, Image, Markdown, Pen, WebPage,
 };
 use crate::domain::board::repository::BoardRepository as BoardRepositoryTrait;
 use crate::domain::values::board_id::BoardId;
@@ -58,7 +58,6 @@ impl BoardService {
             BoxData::WebPage(web) => BoxData::WebPage(WebPage { id: id, ..web }),
             BoxData::Image(image) => BoxData::Image(Image { id: id, ..image }),
             BoxData::Pen(pen) => BoxData::Pen(Pen { id: id, ..pen }),
-            BoxData::Square(square) => BoxData::Square(Square { id: id, ..square }),
             BoxData::Arrow(arrow) => BoxData::Arrow(Arrow { id: id, ..arrow }),
         })
     }

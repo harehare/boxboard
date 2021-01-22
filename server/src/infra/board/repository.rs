@@ -1,5 +1,5 @@
 use crate::domain::board::model::{
-    Arrow, Board, BoardData, BoxData, Image, Markdown, Pen, PenDraw, Square, WebPage,
+    Arrow, Board, BoardData, BoxData, Image, Markdown, Pen, PenDraw, WebPage,
 };
 use crate::domain::board::repository;
 use crate::domain::values::board_id::BoardId;
@@ -187,16 +187,6 @@ impl From<find_board::ResponseData> for Board {
                                     title: b.title.clone(),
                                     description: b.description.clone(),
                                 }),
-                                "square" => BoxData::Square(Square {
-                                    id: b.id.to_owned(),
-                                    x: TryFrom::try_from(b.x).unwrap(),
-                                    y: TryFrom::try_from(b.y).unwrap(),
-                                    width: TryFrom::try_from(b.width).unwrap(),
-                                    height: TryFrom::try_from(b.height).unwrap(),
-                                    order: TryFrom::try_from(b.order).unwrap(),
-                                    pinned: b.pinned,
-                                    color: b.color.clone().unwrap_or("rgb(0,0,0)".to_string()),
-                                }),
                                 "arrow" => BoxData::Arrow(Arrow {
                                     id: b.id.to_owned(),
                                     x: TryFrom::try_from(b.x).unwrap(),
@@ -213,7 +203,7 @@ impl From<find_board::ResponseData> for Board {
                                     )
                                     .unwrap(),
                                 }),
-                                _ => BoxData::Square(Square {
+                                _ => BoxData::Markdown(Markdown {
                                     id: "".to_owned(),
                                     x: 0,
                                     y: 0,
@@ -222,10 +212,12 @@ impl From<find_board::ResponseData> for Board {
                                     order: 0,
                                     pinned: false,
                                     color: "rgba(0,0,0,0.0)".to_string(),
+                                    text: "".to_string(),
+                                    font_size: TryFrom::try_from(DEFAULT_FONT_SIZE).unwrap(),
                                 }),
                             })
                             // TODO: error
-                            .unwrap_or(BoxData::Square(Square {
+                            .unwrap_or(BoxData::Markdown(Markdown {
                                 id: "".to_owned(),
                                 x: 0,
                                 y: 0,
@@ -234,6 +226,8 @@ impl From<find_board::ResponseData> for Board {
                                 order: 0,
                                 pinned: false,
                                 color: "rgba(0,0,0,0.0)".to_string(),
+                                text: "".to_string(),
+                                font_size: TryFrom::try_from(DEFAULT_FONT_SIZE).unwrap(),
                             }))
                     })
                     .collect(),
@@ -502,29 +496,6 @@ impl repository::BoardRepository for BoardRepository {
                     angle: 0,
                     stroke_width: None,
                 },
-                BoxData::Square(square) => BoxInput {
-                    board_id: board_id.to_string(),
-                    user_id: user_id.to_string(),
-                    x: TryFrom::try_from(square.x).unwrap(),
-                    y: TryFrom::try_from(square.y).unwrap(),
-                    width: TryFrom::try_from(square.width).unwrap(),
-                    height: TryFrom::try_from(square.height).unwrap(),
-                    order: TryFrom::try_from(square.order).unwrap(),
-                    box_type: "square".to_string(),
-                    pinned: square.pinned,
-                    url: None,
-                    text: None,
-                    font_size: None,
-                    image_url: None,
-                    title: None,
-                    description: None,
-                    pen_colors: None,
-                    pen_draws: None,
-                    color: Some(square.color),
-                    arrow_type: None,
-                    angle: 0,
-                    stroke_width: None,
-                },
                 BoxData::Arrow(arrow) => BoxInput {
                     board_id: board_id.to_string(),
                     user_id: user_id.to_string(),
@@ -675,29 +646,6 @@ impl repository::BoardRepository for BoardRepository {
                     angle: 0,
                     stroke_width: None,
                 },
-                BoxData::Square(square) => BoxInput {
-                    board_id: board_id.to_string(),
-                    user_id: user_id.to_string(),
-                    x: TryFrom::try_from(square.x).unwrap(),
-                    y: TryFrom::try_from(square.y).unwrap(),
-                    width: TryFrom::try_from(square.width).unwrap(),
-                    height: TryFrom::try_from(square.height).unwrap(),
-                    order: TryFrom::try_from(square.order).unwrap(),
-                    box_type: "square".to_string(),
-                    pinned: square.pinned,
-                    url: None,
-                    text: None,
-                    font_size: None,
-                    image_url: None,
-                    title: None,
-                    description: None,
-                    pen_colors: None,
-                    pen_draws: None,
-                    color: Some(square.color),
-                    arrow_type: None,
-                    angle: 0,
-                    stroke_width: None,
-                },
                 BoxData::Arrow(arrow) => BoxInput {
                     board_id: board_id.to_string(),
                     user_id: user_id.to_string(),
@@ -744,7 +692,7 @@ impl repository::BoardRepository for BoardRepository {
         }
     }
 
-    async fn delete_box(&self, box_id: BoxId, user_id: UserId) -> Result<()> {
+    async fn delete_box(&self, box_id: BoxId, _user_id: UserId) -> Result<()> {
         use delete_box::*;
         let body = DeleteBox::build_query(Variables {
             id: box_id.to_string(),
