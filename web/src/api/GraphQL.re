@@ -2,7 +2,14 @@ module BoardQuery = [%graphql
   {|
     query BoardQuery($id: String!) {
       board: board(id: $id) {
-        id
+        board {
+          id
+          boardId
+          title
+          x
+          y
+          scale
+        }
         boxes {
           ... on Markdown {
             id
@@ -52,16 +59,6 @@ module BoardQuery = [%graphql
               draw
             }
           }
-          ...on Square {
-            id
-            x
-            y
-            width
-            height
-            order
-            pinned
-            color
-          }
           ...on Arrow {
             id
             x
@@ -76,6 +73,26 @@ module BoardQuery = [%graphql
             strokeWidth
           }
         }
+      }
+    }
+  |}
+];
+
+module SaveBoard = [%graphql
+  {|
+    mutation saveBoard($id: ID!, $input: BoardInput!) {
+      board: saveBoard(boardId: $id, input: $input) {
+          id
+      }
+    }
+  |}
+];
+
+module DeleteBoard = [%graphql
+  {|
+    mutation deleteBoard($id: ID!, $input: BoardInput!) {
+      board: deleteBoard(boardId: $id, input: $input) {
+          id
       }
     }
   |}
@@ -122,18 +139,6 @@ module AddPen = [%graphql
     mutation addPen($boardId: ID!, $input: PenInput!) {
       board: addPen(boardId: $boardId, input: $input) {
         ... on Pen {
-          id
-        }
-      }
-    }
-  |}
-];
-
-module AddSquare = [%graphql
-  {|
-    mutation addSquare($boardId: ID!, $input: SquareInput!) {
-      board: addSquare(boardId: $boardId, input: $input) {
-        ... on Square {
           id
         }
       }
@@ -201,18 +206,6 @@ module UpdatePen = [%graphql
   |}
 ];
 
-module UpdateSquare = [%graphql
-  {|
-    mutation updateSquare($boardId: ID!, $boxId: ID!, $input: SquareInput!) {
-      board: updateSquare(boardId: $boardId, boxId: $boxId, input: $input) {
-        ... on Square {
-          id
-        }
-      }
-    }
-  |}
-];
-
 module UpdateArrow = [%graphql
   {|
     mutation updateArrow($boardId: ID!, $boxId: ID!, $input: ArrowInput!) {
@@ -266,18 +259,6 @@ module DeletePen = [%graphql
     mutation deletePen($boxId: ID!, $input: PenInput!) {
       board: deletePen(boxId: $boxId, input: $input) {
         ... on Pen {
-          id
-        }
-      }
-    }
-  |}
-];
-
-module DeleteSquare = [%graphql
-  {|
-    mutation deleteSquare($boxId: ID!, $input: SquareInput!) {
-      board: deleteSquare(boxId: $boxId, input: $input) {
-        ... on Square {
           id
         }
       }
@@ -412,27 +393,6 @@ module AddInput = {
       ~order=box.order,
       ~pinned=box.pinned,
       ~image=Belt.Option.getWithDefault(image, ""),
-      (),
-    );
-  };
-
-  let toSquareInput = (box: Box.t): AddSquare.t_variables_SquareInput => {
-    let (x, y) = box.position;
-    let (width, height) = box.size;
-    let color =
-      switch (box.kind) {
-      | Square(color) => color
-      | _ => Color.black
-      };
-    AddSquare.makeInputObjectSquareInput(
-      ~id=box.id,
-      ~x,
-      ~y,
-      ~width,
-      ~height,
-      ~order=box.order,
-      ~pinned=box.pinned,
-      ~color=color->Color.toString,
       (),
     );
   };
@@ -586,27 +546,6 @@ module UpdateInput = {
     );
   };
 
-  let toSquareInput = (box: Box.t): UpdateSquare.t_variables_SquareInput => {
-    let (x, y) = box.position;
-    let (width, height) = box.size;
-    let color =
-      switch (box.kind) {
-      | Square(color) => color
-      | _ => Color.black
-      };
-    UpdateSquare.makeInputObjectSquareInput(
-      ~id=box.id,
-      ~x,
-      ~y,
-      ~width,
-      ~height,
-      ~order=box.order,
-      ~pinned=box.pinned,
-      ~color=color->Color.toString,
-      (),
-    );
-  };
-
   let toArrowInput = (box: Box.t): UpdateArrow.t_variables_ArrowInput => {
     let (x, y) = box.position;
     let (width, height) = box.size;
@@ -756,27 +695,6 @@ module DeleteInput = {
     );
   };
 
-  let toSquareInput = (box: Box.t): DeleteSquare.t_variables_SquareInput => {
-    let (x, y) = box.position;
-    let (width, height) = box.size;
-    let color =
-      switch (box.kind) {
-      | Square(color) => color
-      | _ => Color.black
-      };
-    DeleteSquare.makeInputObjectSquareInput(
-      ~id=box.id,
-      ~x,
-      ~y,
-      ~width,
-      ~height,
-      ~order=box.order,
-      ~pinned=box.pinned,
-      ~color=color->Color.toString,
-      (),
-    );
-  };
-
   let toArrowInput = (box: Box.t): DeleteArrow.t_variables_ArrowInput => {
     let (x, y) = box.position;
     let (width, height) = box.size;
@@ -886,18 +804,6 @@ let toBox = (src: BoardQuery.t_board_boxes): Box.t => {
       order: pen.order,
       isRemote: true,
       pinned: pen.pinned,
-    }
-  | `Square(square) => {
-      id: square.id,
-      position: (square.x, square.y),
-      movePosition: (0, 0),
-      size: (square.width, square.height),
-      kind: Square(Color.fromString(square.color)),
-      status: Box.None,
-      loading: false,
-      order: square.order,
-      isRemote: true,
-      pinned: square.pinned,
     }
   | `Arrow(arrow) => {
       id: arrow.id,

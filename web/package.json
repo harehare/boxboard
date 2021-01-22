@@ -8,7 +8,8 @@
         "clean": "bsb -clean-world",
         "dev": "concurrently \"bsb -make-world -w -ws _\" \"webpack serve --hot --color --port 1234\"",
         "prod": "NODE_ENV=production webpack --mode production",
-        "analyze": "webpack-bundle-analyzer bundle-stats.json"
+        "analyze": "webpack-bundle-analyzer bundle-stats.json",
+        "update:schema": "get-graphql-schema http://localhost:3030/graphql -j > graphql_schema.json"
     },
     "keywords": [],
     "author": "Takahiro Sato",

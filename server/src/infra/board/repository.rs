@@ -1,5 +1,5 @@
 use crate::domain::board::model::{
-    Arrow, Board, BoxData, Image, Markdown, Pen, PenDraw, Square, WebPage,
+    Arrow, Board, BoardData, BoxData, Image, Markdown, Pen, PenDraw, WebPage,
 };
 use crate::domain::board::repository;
 use crate::domain::values::board_id::BoardId;
@@ -23,6 +23,42 @@ const DEFAULT_STROKE_WIDTH: i64 = 2;
     normalization = "rust"
 )]
 struct FindBoard;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "schema.graphql",
+    query_path = "queries.graphql",
+    response_derives = "Debug",
+    normalization = "rust"
+)]
+struct FindBoardId;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "schema.graphql",
+    query_path = "queries.graphql",
+    response_derives = "Debug",
+    normalization = "rust"
+)]
+struct CreateBoard;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "schema.graphql",
+    query_path = "queries.graphql",
+    response_derives = "Debug",
+    normalization = "rust"
+)]
+struct UpdateBoard;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "schema.graphql",
+    query_path = "queries.graphql",
+    response_derives = "Debug",
+    normalization = "rust"
+)]
+struct DeleteBoard;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -74,14 +110,16 @@ impl BoardRepository {
 
 impl From<find_board::ResponseData> for Board {
     fn from(data: find_board::ResponseData) -> Self {
-        match data.find_boxes_in_board {
-            Some(item) => Board {
-                // TODO:
-                id: item
-                    .data
-                    .first()
-                    .and_then(|v| v.as_ref().and_then(|vv| Some(vv.board_id.clone())))
-                    .unwrap_or("".to_owned()),
+        match (data.find_board, data.find_boxes_in_board) {
+            (Some(board), Some(item)) => Board {
+                board: BoardData {
+                    id: board.id,
+                    board_id: board.board_id,
+                    title: board.title.clone().unwrap_or("".to_string()),
+                    x: TryFrom::try_from(board.x).unwrap(),
+                    y: TryFrom::try_from(board.y).unwrap(),
+                    scale: board.scale,
+                },
                 boxes: item
                     .data
                     .iter()
@@ -149,16 +187,6 @@ impl From<find_board::ResponseData> for Board {
                                     title: b.title.clone(),
                                     description: b.description.clone(),
                                 }),
-                                "square" => BoxData::Square(Square {
-                                    id: b.id.to_owned(),
-                                    x: TryFrom::try_from(b.x).unwrap(),
-                                    y: TryFrom::try_from(b.y).unwrap(),
-                                    width: TryFrom::try_from(b.width).unwrap(),
-                                    height: TryFrom::try_from(b.height).unwrap(),
-                                    order: TryFrom::try_from(b.order).unwrap(),
-                                    pinned: b.pinned,
-                                    color: b.color.clone().unwrap_or("rgb(0,0,0)".to_string()),
-                                }),
                                 "arrow" => BoxData::Arrow(Arrow {
                                     id: b.id.to_owned(),
                                     x: TryFrom::try_from(b.x).unwrap(),
@@ -175,7 +203,7 @@ impl From<find_board::ResponseData> for Board {
                                     )
                                     .unwrap(),
                                 }),
-                                _ => BoxData::Square(Square {
+                                _ => BoxData::Markdown(Markdown {
                                     id: "".to_owned(),
                                     x: 0,
                                     y: 0,
@@ -184,10 +212,12 @@ impl From<find_board::ResponseData> for Board {
                                     order: 0,
                                     pinned: false,
                                     color: "rgba(0,0,0,0.0)".to_string(),
+                                    text: "".to_string(),
+                                    font_size: TryFrom::try_from(DEFAULT_FONT_SIZE).unwrap(),
                                 }),
                             })
                             // TODO: error
-                            .unwrap_or(BoxData::Square(Square {
+                            .unwrap_or(BoxData::Markdown(Markdown {
                                 id: "".to_owned(),
                                 x: 0,
                                 y: 0,
@@ -196,12 +226,21 @@ impl From<find_board::ResponseData> for Board {
                                 order: 0,
                                 pinned: false,
                                 color: "rgba(0,0,0,0.0)".to_string(),
+                                text: "".to_string(),
+                                font_size: TryFrom::try_from(DEFAULT_FONT_SIZE).unwrap(),
                             }))
                     })
                     .collect(),
             },
-            None => Board {
-                id: "".to_owned(),
+            _ => Board {
+                board: BoardData {
+                    id: "".to_string(),
+                    board_id: "".to_string(),
+                    title: "".to_string(),
+                    x: 0,
+                    y: 0,
+                    scale: 1.0,
+                },
                 boxes: vec![],
             },
         }
@@ -210,6 +249,33 @@ impl From<find_board::ResponseData> for Board {
 
 #[async_trait]
 impl repository::BoardRepository for BoardRepository {
+    async fn get_board_id(&self, id: BoardId) -> Result<String> {
+        use find_board_id::*;
+
+        let q = FindBoardId::build_query(Variables { id: id.to_string() });
+        let res: Response<ResponseData> = self
+            .client
+            .post(&self.graphql_endpoint)
+            .header("Authorization", format!("Bearer {}", self.bearer_token))
+            .json(&q)
+            .send()
+            .await?
+            .json()
+            .await?;
+        match (res.data, res.errors) {
+            (Some(data), _) => match data.find_board {
+                Some(v) => Ok(v.id),
+                None => Err(anyhow!(Error::NotFound)),
+            },
+            (None, Some(errors)) => Err(anyhow!(errors
+                .iter()
+                .map(|e| e.message.to_string())
+                .collect::<Vec<_>>()
+                .join(","))),
+            _ => Err(anyhow!(Error::Unknown)),
+        }
+    }
+
     async fn find(&self, id: BoardId, user_id: UserId) -> Result<Board> {
         let q = FindBoard::build_query(find_board::Variables {
             id: id.to_string(),
@@ -226,6 +292,100 @@ impl repository::BoardRepository for BoardRepository {
             .await?;
         match (res.data, res.errors) {
             (Some(data), _) => Ok(Board::from(data)),
+            (None, Some(errors)) => Err(anyhow!(errors
+                .iter()
+                .map(|e| e.message.to_string())
+                .collect::<Vec<_>>()
+                .join(","))),
+            _ => Err(anyhow!(Error::Unknown)),
+        }
+    }
+
+    async fn add_board(&self, board: BoardData) -> Result<()> {
+        use create_board::*;
+        let body = CreateBoard::build_query(Variables {
+            data: BoardInput {
+                board_id: board.board_id,
+                title: Some(board.title),
+                x: TryFrom::try_from(board.x).unwrap(),
+                y: TryFrom::try_from(board.y).unwrap(),
+                scale: board.scale,
+            },
+        });
+
+        let res: Response<ResponseData> = self
+            .client
+            .post(&self.graphql_endpoint)
+            .header("Authorization", format!("Bearer {}", self.bearer_token))
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        match (res.data, res.errors) {
+            (Some(_), None) => Ok(()),
+            (None, Some(errors)) => Err(anyhow!(errors
+                .iter()
+                .map(|e| e.message.to_string())
+                .collect::<Vec<_>>()
+                .join(","))),
+            _ => Err(anyhow!(Error::Unknown)),
+        }
+    }
+
+    async fn update_board(&self, board_id: BoardId, board: BoardData) -> Result<()> {
+        use update_board::*;
+        let body = UpdateBoard::build_query(Variables {
+            id: board_id.to_string(),
+            data: BoardInput {
+                board_id: board.board_id,
+                title: Some(board.title),
+                x: TryFrom::try_from(board.x).unwrap(),
+                y: TryFrom::try_from(board.y).unwrap(),
+                scale: board.scale,
+            },
+        });
+
+        let res: Response<ResponseData> = self
+            .client
+            .post(&self.graphql_endpoint)
+            .header("Authorization", format!("Bearer {}", self.bearer_token))
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        match (res.data, res.errors) {
+            (Some(_num), _) => Ok(()),
+            (None, Some(errors)) => Err(anyhow!(errors
+                .iter()
+                .map(|e| e.message.to_string())
+                .collect::<Vec<_>>()
+                .join(","))),
+            _ => Err(anyhow!(Error::Unknown)),
+        }
+    }
+
+    async fn delete_board(&self, board_id: BoardId) -> Result<()> {
+        use delete_board::*;
+        let body = DeleteBoard::build_query(Variables {
+            id: board_id.to_string(),
+        });
+
+        // TODO: check user
+        let res: Response<ResponseData> = self
+            .client
+            .post(&self.graphql_endpoint)
+            .header("Authorization", format!("Bearer {}", self.bearer_token))
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+        match (res.data, res.errors) {
+            (Some(_num), None) => Ok(()),
             (None, Some(errors)) => Err(anyhow!(errors
                 .iter()
                 .map(|e| e.message.to_string())
@@ -332,29 +492,6 @@ impl repository::BoardRepository for BoardRepository {
                     pen_colors: Some(pen.draw_list.iter().map(|d| d.color.to_string()).collect()),
                     pen_draws: Some(pen.draw_list.iter().map(|d| d.draw.to_string()).collect()),
                     color: None,
-                    arrow_type: None,
-                    angle: 0,
-                    stroke_width: None,
-                },
-                BoxData::Square(square) => BoxInput {
-                    board_id: board_id.to_string(),
-                    user_id: user_id.to_string(),
-                    x: TryFrom::try_from(square.x).unwrap(),
-                    y: TryFrom::try_from(square.y).unwrap(),
-                    width: TryFrom::try_from(square.width).unwrap(),
-                    height: TryFrom::try_from(square.height).unwrap(),
-                    order: TryFrom::try_from(square.order).unwrap(),
-                    box_type: "square".to_string(),
-                    pinned: square.pinned,
-                    url: None,
-                    text: None,
-                    font_size: None,
-                    image_url: None,
-                    title: None,
-                    description: None,
-                    pen_colors: None,
-                    pen_draws: None,
-                    color: Some(square.color),
                     arrow_type: None,
                     angle: 0,
                     stroke_width: None,
@@ -509,29 +646,6 @@ impl repository::BoardRepository for BoardRepository {
                     angle: 0,
                     stroke_width: None,
                 },
-                BoxData::Square(square) => BoxInput {
-                    board_id: board_id.to_string(),
-                    user_id: user_id.to_string(),
-                    x: TryFrom::try_from(square.x).unwrap(),
-                    y: TryFrom::try_from(square.y).unwrap(),
-                    width: TryFrom::try_from(square.width).unwrap(),
-                    height: TryFrom::try_from(square.height).unwrap(),
-                    order: TryFrom::try_from(square.order).unwrap(),
-                    box_type: "square".to_string(),
-                    pinned: square.pinned,
-                    url: None,
-                    text: None,
-                    font_size: None,
-                    image_url: None,
-                    title: None,
-                    description: None,
-                    pen_colors: None,
-                    pen_draws: None,
-                    color: Some(square.color),
-                    arrow_type: None,
-                    angle: 0,
-                    stroke_width: None,
-                },
                 BoxData::Arrow(arrow) => BoxInput {
                     board_id: board_id.to_string(),
                     user_id: user_id.to_string(),
@@ -578,7 +692,7 @@ impl repository::BoardRepository for BoardRepository {
         }
     }
 
-    async fn delete_box(&self, box_id: BoxId, user_id: UserId) -> Result<()> {
+    async fn delete_box(&self, box_id: BoxId, _user_id: UserId) -> Result<()> {
         use delete_box::*;
         let body = DeleteBox::build_query(Variables {
             id: box_id.to_string(),

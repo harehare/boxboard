@@ -136,7 +136,6 @@ let make = (~box: Box.t, ~onDelete: React.callback(Box.t, unit)) => {
        }}
       {switch (box.kind) {
        | Pen(_, draw, _, _) => <ColorPicker currentColor={draw.color} />
-       | Square(color) => <ColorPicker currentColor=color />
        | Arrow(color, _, _, _) => <ColorPicker currentColor=color />
        | Markdown(_, color, _) => <ColorPicker currentColor=color />
        | _ => <div />

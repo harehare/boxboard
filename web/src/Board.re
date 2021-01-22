@@ -8,6 +8,7 @@ let dataSelector = state => state.data;
 let positionSelector = state => state.position;
 let scaleSelector = state => state.scale;
 let searchQuerySelector = state => state.searchQuery;
+let remoteIdSelector = state => state.remoteId;
 
 [@react.component]
 let make = (~id) => {
@@ -17,6 +18,7 @@ let make = (~id) => {
   let position = useSelector(positionSelector);
   let scale = useSelector(scaleSelector);
   let searchQuery = useSelector(searchQuerySelector);
+  let remoteId = useSelector(remoteIdSelector);
   let (width, height) = Utils.screenSize();
   let (x, y) = position;
   let {isAuthenticated} = Auth0.useAuth0();
@@ -34,6 +36,34 @@ let make = (~id) => {
       box =>
         if (isAuthenticated) {
           mutation(Update(box));
+        },
+      [|isAuthenticated|],
+    );
+  let onSaveBoard =
+    React.useCallback1(
+      title =>
+        switch (remoteId, isAuthenticated) {
+        | (Some(remoteId), true) =>
+          mutation(
+            SaveBoard({
+              remoteId: Some(remoteId),
+              boardId: id,
+              title: Some(title),
+              position,
+              scale,
+            }),
+          )
+        | (None, true) =>
+          mutation(
+            SaveBoard({
+              remoteId: None,
+              boardId: id,
+              title: Some(title),
+              position,
+              scale,
+            }),
+          )
+        | _ => ()
         },
       [|isAuthenticated|],
     );
@@ -79,11 +109,6 @@ let make = (~id) => {
   let penStyle =
     switch (boardAction) {
     | Adding(Pen(_)) => "selected"
-    | _ => ""
-    };
-  let squareStyle =
-    switch (boardAction) {
-    | Adding(Square(_)) => "selected"
     | _ => ""
     };
   let markdownStyle =
@@ -184,6 +209,7 @@ let make = (~id) => {
       show={queryLoading || mutationLoading || RemoteData.isLoading(data)}
     />
     <Header />
+    <Title onSaveBoard />
     <Menu
       boxList
       position
@@ -226,16 +252,6 @@ let make = (~id) => {
         <Icon icon=Icon.faPen className="fa-lg" />
         <span className="tooltip">
           <span className="text"> "Pen"->React.string </span>
-        </span>
-      </div>
-      <div
-        className={j|$squareStyle button|j}
-        onClick={_ =>
-          dispatch(BoardAction(Adding(Box.Square(Color.yellow))))
-        }>
-        <Icon icon=Icon.faSquare className="fa-lg" />
-        <span className="tooltip">
-          <span className="text"> "Square"->React.string </span>
         </span>
       </div>
       <div
@@ -504,6 +520,7 @@ let make = (~id) => {
                                   <BoxContainer
                                     key={box.id}
                                     box
+                                    scale
                                     isSelected
                                     updateBox
                                   />;
@@ -520,6 +537,7 @@ let make = (~id) => {
                                   <g key={box.id}>
                                     <BoxContainer
                                       box
+                                      scale
                                       isSelected=false
                                       updateBox
                                     />

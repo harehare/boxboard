@@ -36,7 +36,6 @@ type kind =
   | Web(url, option(page))
   | Image(option(string))
   | Pen(list(position), draw, list(draw), isEdited)
-  | Square(Color.t)
   | Arrow(Color.t, ArrowType.t, angle, strokeWidth)
   | Error(string);
 
@@ -76,7 +75,7 @@ let newBox = (~kind, ~position=(0, 0), ()) => {
   id: uuidv4(),
   position,
   movePosition: (0, 0),
-  size: (192, 192),
+  size: (128, 128),
   kind,
   status: None,
   pinned: false,
@@ -89,8 +88,8 @@ let empty = {
   id: "",
   position: (0, 0),
   movePosition: (0, 0),
-  size: (192, 192),
-  kind: Square(Color.black),
+  size: (128, 128),
+  kind: Markdown("", Color.black, FontSize.default),
   status: None,
   pinned: false,
   loading: false,
@@ -101,6 +100,7 @@ let empty = {
 [@decco]
 type boxData = {
   id: string,
+  title: option(string),
   boxes: list(t),
   position,
   scale: float,

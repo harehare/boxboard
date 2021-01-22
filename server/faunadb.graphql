@@ -24,6 +24,14 @@ type Box {
   strokeWidth: Int
 }
 
+type Board {
+  boardID: ID!
+  title: String
+  x: Int!
+  y: Int!
+  scale: Float!
+}
+
 input BoxInput {
   boardID: ID!
   userID: ID!
@@ -50,6 +58,15 @@ input BoxInput {
   strokeWidth: Int
 }
 
+input BoardInput {
+  boardID: ID!
+  title: String
+  x: Int!
+  y: Int!
+  scale: Float!
+}
+
 type Query {
   findBoxesInBoard(boardID: ID!, userID: ID!): [Box]
+  findBoard(boardID: ID!): Board
 }

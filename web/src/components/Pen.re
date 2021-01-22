@@ -10,7 +10,7 @@ let make = (~width: int, ~height: int, ~draw: draw, ~drawList: list(draw)) =>
       d={draw.d}
       fill="transparent"
       stroke={Color.toString(draw.color)}
-      strokeWidth="2"
+      strokeWidth="3"
     />
     {React.array(
        Array.of_list(
@@ -21,7 +21,7 @@ let make = (~width: int, ~height: int, ~draw: draw, ~drawList: list(draw)) =>
                d={d.d}
                fill="transparent"
                stroke={Color.toString(d.color)}
-               strokeWidth="2"
+               strokeWidth="3"
              />,
            drawList,
          ),

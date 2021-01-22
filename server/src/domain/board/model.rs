@@ -60,18 +60,6 @@ pub struct PenDraw {
 }
 
 #[derive(Clone, Debug, juniper::GraphQLObject)]
-pub struct Square {
-    pub id: String,
-    pub x: i32,
-    pub y: i32,
-    pub width: i32,
-    pub height: i32,
-    pub order: i32,
-    pub pinned: bool,
-    pub color: String,
-}
-
-#[derive(Clone, Debug, juniper::GraphQLObject)]
 pub struct Arrow {
     pub id: String,
     pub x: i32,
@@ -92,13 +80,22 @@ pub enum BoxData {
     WebPage(WebPage),
     Image(Image),
     Pen(Pen),
-    Square(Square),
     Arrow(Arrow),
 }
 
 #[derive(Clone, Debug, juniper::GraphQLObject)]
-pub struct Board {
+pub struct BoardData {
     pub id: String,
+    pub board_id: String,
+    pub title: String,
+    pub x: i32,
+    pub y: i32,
+    pub scale: f64,
+}
+
+#[derive(Clone, Debug, juniper::GraphQLObject)]
+pub struct Board {
+    pub board: BoardData,
     pub boxes: Vec<BoxData>,
 }
 
@@ -109,7 +106,6 @@ impl std::fmt::Display for BoxData {
             BoxData::WebPage(_) => write!(f, "web"),
             BoxData::Image(_) => write!(f, "image"),
             BoxData::Pen(_) => write!(f, "pen"),
-            BoxData::Square(_) => write!(f, "square"),
             BoxData::Arrow(_) => write!(f, "arrow"),
         }
     }
