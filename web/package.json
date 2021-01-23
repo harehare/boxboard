@@ -30,6 +30,7 @@
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
         "react-dropzone": "^11.2.4",
+        "react-helmet": "^6.1.0",
         "reason-promise": "^1.1.2",
         "reason-react": ">=0.9.1",
         "reductive": "^2.1.1",

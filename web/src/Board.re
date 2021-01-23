@@ -9,6 +9,7 @@ let positionSelector = state => state.position;
 let scaleSelector = state => state.scale;
 let searchQuerySelector = state => state.searchQuery;
 let remoteIdSelector = state => state.remoteId;
+let titleSelector = state => state.title;
 
 [@react.component]
 let make = (~id) => {
@@ -19,6 +20,7 @@ let make = (~id) => {
   let scale = useSelector(scaleSelector);
   let searchQuery = useSelector(searchQuerySelector);
   let remoteId = useSelector(remoteIdSelector);
+  let title = useSelector(titleSelector);
   let (width, height) = Utils.screenSize();
   let (x, y) = position;
   let {isAuthenticated} = Auth0.useAuth0();
@@ -209,6 +211,14 @@ let make = (~id) => {
       show={queryLoading || mutationLoading || RemoteData.isLoading(data)}
     />
     <Header />
+    <Helmet>
+      <title>
+        {title
+         ->Belt.Option.map((v: string) => {j|BoxBoard | $v|j})
+         ->Belt.Option.getWithDefault("BoxBoard")
+         ->React.string}
+      </title>
+    </Helmet>
     <Title onSaveBoard />
     <Menu
       boxList
