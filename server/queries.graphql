@@ -40,6 +40,14 @@ query findBoardId($id: ID!) {
   }
 }
 
+# query findBoards($userID: ID!) {
+#   findBoard(userID: $userID) {
+#     _id
+#     boardID
+#     title
+#   }
+# }
+
 mutation createBox($data: BoxInput!) {
   createBox(data: $data) {
     _id

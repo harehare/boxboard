@@ -301,11 +301,12 @@ impl repository::BoardRepository for BoardRepository {
         }
     }
 
-    async fn add_board(&self, board: BoardData) -> Result<()> {
+    async fn add_board(&self, user_id: UserId, board: BoardData) -> Result<()> {
         use create_board::*;
         let body = CreateBoard::build_query(Variables {
             data: BoardInput {
                 board_id: board.board_id,
+                user_id: user_id.to_string(),
                 title: Some(board.title),
                 x: TryFrom::try_from(board.x).unwrap(),
                 y: TryFrom::try_from(board.y).unwrap(),
@@ -334,12 +335,18 @@ impl repository::BoardRepository for BoardRepository {
         }
     }
 
-    async fn update_board(&self, board_id: BoardId, board: BoardData) -> Result<()> {
+    async fn update_board(
+        &self,
+        user_id: UserId,
+        board_id: BoardId,
+        board: BoardData,
+    ) -> Result<()> {
         use update_board::*;
         let body = UpdateBoard::build_query(Variables {
             id: board_id.to_string(),
             data: BoardInput {
                 board_id: board.board_id,
+                user_id: user_id.to_string(),
                 title: Some(board.title),
                 x: TryFrom::try_from(board.x).unwrap(),
                 y: TryFrom::try_from(board.y).unwrap(),
@@ -368,7 +375,7 @@ impl repository::BoardRepository for BoardRepository {
         }
     }
 
-    async fn delete_board(&self, board_id: BoardId) -> Result<()> {
+    async fn delete_board(&self, _user_id: UserId, board_id: BoardId) -> Result<()> {
         use delete_board::*;
         let body = DeleteBoard::build_query(Variables {
             id: board_id.to_string(),

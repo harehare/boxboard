@@ -24,7 +24,12 @@ pub trait BoardRepository {
         box_data: BoxData,
     ) -> Result<()>;
     async fn delete_box(&self, board_id: BoxId, user_id: UserId) -> Result<()>;
-    async fn add_board(&self, board: BoardData) -> Result<()>;
-    async fn update_board(&self, board_id: BoardId, board: BoardData) -> Result<()>;
-    async fn delete_board(&self, board_id: BoardId) -> Result<()>;
+    async fn add_board(&self, user_id: UserId, board: BoardData) -> Result<()>;
+    async fn update_board(
+        &self,
+        user_id: UserId,
+        board_id: BoardId,
+        board: BoardData,
+    ) -> Result<()>;
+    async fn delete_board(&self, user_id: UserId, board_id: BoardId) -> Result<()>;
 }

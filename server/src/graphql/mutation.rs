@@ -73,7 +73,10 @@ impl MutationRoot {
             y: input.y,
             scale: input.scale,
         };
-        let res = ctx.board_service.save_board(board_data.clone()).await;
+        let res = ctx
+            .board_service
+            .save_board(UserId::new(ctx.uid.clone()), board_data.clone())
+            .await;
 
         res.map(|_| board_data)
             .map_err(|e| juniper::FieldError::from(e))
@@ -94,7 +97,10 @@ impl MutationRoot {
         };
         let res = ctx
             .board_service
-            .delete_board(BoardId::new(board_id.to_string()))
+            .delete_board(
+                BoardId::new(board_id.to_string()),
+                UserId::new(ctx.uid.clone()),
+            )
             .await;
 
         res.map(|_| BoardData {

@@ -32,6 +32,7 @@ type Board {
   scale: Float!
   _id: ID!
   boardID: ID!
+  userID: ID!
   _ts: Long!
 }
 
@@ -69,6 +70,7 @@ input BoxInput {
 
 input BoardInput {
   boardID: ID!
+  userID: ID!
   title: String
   x: Int!
   y: Int!
@@ -78,6 +80,7 @@ input BoardInput {
 type Query {
   findBoxesInBoard(boardID: ID!, userID: ID!): BoxPage
   findBoard(boardID: ID!): Board
+  #   findBoards(userID: ID!): Board
 }
 
 type Mutation {
